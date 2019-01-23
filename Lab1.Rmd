@@ -1,5 +1,5 @@
 ---
-title: "Lab1"
+title: "Group Lab 1"
 output: html_document
 author: Group 4
 
@@ -9,45 +9,48 @@ author: Group 4
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Part 1
-This dataset is derived from the All China Data Center which is formerly affiliated with the University of Michigan. The All China Data Center is run by the All China Marketing Research company, a private research firm. 
+## Part 1: Understanding Our Data
+This dataset is derived from the [All China Data Center](https://chinadatacenter.net/Data/Services.aspx) which is formerly affiliated with the University of Michigan. The All China Data Center is run by the All China Marketing Research company, a private research firm. 
 
-Shanghai and Beijing are technically municipalities (not provinces), which, according to Wikipedia, have a higher political status than provinces and are under direct control of the central government so therefore they are included in this dataset. 
+While it seems odd that cities like Shanghai and Beijing are included in statistics with provinces, they are special cases in that they are technically [municipalities](https://en.wikipedia.org/wiki/Direct-administered_municipalities_of_China). They have a higher political status than other types of cities, and are considered to be on the same level as provinces. Because they are under direct control of the central government, they are included in this dataset. Other major cities of Tianjin and Chongqing are also classified as municipalities.
 
-Additionally, Hong Kong and Macau are not included in this dataset becuase although they are "special administrative regions" (SAR) of the PRC, SAR's are "highly autonomous and self-governing sub national subject of the People's Republic of China that is directly under the Central People's Government". In this way, Hong Kong and Macau control their own economies, are only really tied to China in terms of foreign policy and military/defense and therefore produce economic statistics through their own governments. To view Macau's economic data it can be accessed [here](https://www.gov.mo/en/about-macao-sar/statistics/). To view Hong Kong's economic data it can be accessed [here](https://www.hkeconomy.gov.hk/en/situation/index.htm).
+Additionally, Hong Kong and [Macau](https://en.wikipedia.org/wiki/Macau) are not included in this dataset becuase although they are "special administrative regions" (SAR) of the PRC, SAR's are "highly autonomous and self-governing sub national subject of the People's Republic of China that is directly under the Central People's Government". In this way, Hong Kong and Macau control their own economies, are only really tied to China in terms of foreign policy and military/defense and therefore produce economic statistics through their own governments. To view Macau's economic data it can be accessed [here](https://www.gov.mo/en/about-macao-sar/statistics/). To view Hong Kong's economic data it can be accessed [here](https://www.hkeconomy.gov.hk/en/situation/index.htm). <!-- Should we include something about Taiwan in this section? -->
 
 
-##Explain the time periods that might be the least reliable, and maybe summarize some of the suggested methods for “correcting” things like GDP data. *Need help with this section- I have not found what time periods are the least reliable nor have I found methods?? See the comments and if you have data, please add
-
+<!--Explain the time periods that might be the least reliable, and maybe summarize some of the suggested methods for “correcting” things like GDP data. *Need help with this section- I have not found what time periods are the least reliable nor have I found methods?? See the comments and if you have data, please add-->
+Chinese statistics have been notoriously flawed for several reasons ranging from imprecise units of measurement to a lack of attention toward rural areas. In the late 1950s, statistics were seen as a way to show off accomplishment, rather than to communicate accurate and useful data. Throughout the 1950s there was a shortage of employees qualified to handle this data. As a consequence, workers were pressured to submit whatever report they had, regardless of accuracy. This led to a "virtual blackout" in the early 1960s. <!--This article also says that heavy industry statistics tend to be more accurate than those of light industry - wonder how this relates to the data?--> There is a very different cultural attitude toward statistical information than in the US. It is not only due to wanting to present itself well, but a common viewpoint in China is that "a slight discrepancy in figures does no harm".
 Generally speaking, economic statistics produced by the central government are consistently inflated in comparison to those produced locally/regionally. The central government has long evaluated local government officials on the basis of The National Bureau of Statistics of China's GDP. Because of this motivation to inflate national statistics, the socialist period (1949-1980) will include 
-# probably inflated data?
+<!-- probably inflated data? -->
 the "reform and opening period" beginning in 1982 will include 
-# more accurate data reflecting changes in the more-free market ?
-
+<!-- more accurate data reflecting changes in the more-free market ? -->
 In 2017 China established the Statistical Law Enforcement Supervision Bureau and the government issued “Regulations for Implementation of the Law on Statistics,” which were intended to enable punishment of statistics forgery. 
-
 Statistics produced by private organizations tend to have more accurate data than those produced by the central government.
-#general source for this, Phil just said this in the lab 1 prompt
+<!-- general source for this, Phil just said this in the lab 1 prompt -->
 
 Sources: 
-* https://en.wikipedia.org/wiki/Economic_history_of_China_(1949%E2%80%93present)v
-* https://japan-forward.com/how-trustworthy-are-chinese-statistics-china-inflates-gdp-figures-by-478-billion-in-2017/
-* https://en.wikipedia.org/wiki/Macau
-* https://www.forbes.com/sites/salvatorebabones/2018/02/12/china-quietly-releases-2017-provincial-gdp-figures/#799c69ed20dc
+
+* [Economic History of China, 1949 to present](https://en.wikipedia.org/wiki/Economic_history_of_China_(1949%E2%80%93present))
+* [How Trustworty are Chinese Statistics?, JapanForward](https://japan-forward.com/how-trustworthy-are-chinese-statistics-china-inflates-gdp-figures-by-478-billion-in-2017/)
+* [Macau](https://en.wikipedia.org/wiki/Macau)
+* [China Quietly Releases 2017 Provincial GDP Figures, Forbes](https://www.forbes.com/sites/salvatorebabones/2018/02/12/china-quietly-releases-2017-provincial-gdp-figures/#799c69ed20dc)
+<!--Really interesting article from the CIA, goes into detail about Chinese history and statistics-->
+* [The Problem of Chinese Statistics, CIA](https://www.cia.gov/library/center-for-the-study-of-intelligence/kent-csi/vol16no4/html/v17i1a07p_0001.htm)
+<!--Here are a couple more articles on issues with Chinese statistics: https://www.economist.com/finance-and-economics/2018/07/07/chinas-statistics-are-bad-many-criticisms-of-them-are-worse and https://www.bloomberg.com/news/articles/2018-04-19/china-s-economic-stats-have-a-credibility-problem - I can send PDF copies if you run out of free articles to view on the sites-->
 
 ## Part 2 
 
 # Explain interesting changes over time
 
 # 5 Visualizations + short explanations
-
+```{r, include=FALSE}
+library(tidyverse)
+```
 ```{r, echo=FALSE}
-object1=read.csv(file="China_EO_49to17.csv", fileEncoding = "latin1")
-object2=as_tibble(object1)
-
+object1 <= read.csv(file="China_EO_49to17.csv", fileEncoding = "latin1")
+object2 <= as_tibble(object1)
 object2$Year <- as.integer(object2$Year)
-Year=seq(from=1949,to=2017)
-object2$Year=Year
+Year <= seq(from=1949,to=2017)
+object2$Year <= Year
 #write visualizations here
 ```
 
