@@ -46,12 +46,46 @@ Sources:
 library(tidyverse)
 ```
 ```{r, echo=FALSE}
-object1 <= read.csv(file="China_EO_49to17.csv", fileEncoding = "latin1")
-object2 <= as_tibble(object1)
-object2$Year <- as.integer(object2$Year)
-Year <= seq(from=1949,to=2017)
-object2$Year <= Year
+object1 = read.csv(file="China_EO_49to17.csv", fileEncoding = "latin1")
+object2 = as_tibble(object1)
+object2$Year %>% as.integer(object2$Year)
+Year = seq(from=1949,to=2017)
+object2$Year = Year
 #write visualizations here
+
+# Macklan's graph
+
+
+object2 = select(object2, "Year", "Shanghai_Output", "Henan_Output", "Sichuan_Output", "Xinjiang_Output")
+
+object2 = gather(object2, "Shanghai_Output", "Henan_Output", "Sichuan_Output", "Xinjiang_Output", key="Province", value="Output")
+print(object2)
+
+
+graph = ggplot(data = object2) +
+  geom_point(mapping = aes(x = Year, y = Output, color = Province))
+print(graph)
+
+
+
+```
+
+```{r, echo=FALSE}
+# Function to automate producing output ratios
+
+# object1 = the data
+# province1 / province2
+ratio <- function(object1, province1, province2) {
+  object1 = as_tibble(object1) %>% filter(Year >= 2000) %>% arrange(desc(Year))
+  object1 = object1[c("Year", province1, province2)] %>% mutate(Output_Ratio = .[[2]]/ .[[3]])
+  return (object1)
+}
+
+object1 = read.csv("China_EO_49to17.csv")
+output = ratio(object1, "Guizhou_Output", "Yunnan_Output")
+output
+
+
 ```
 
 
