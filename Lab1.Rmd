@@ -43,11 +43,11 @@ Sources:
 library(tidyverse)
 ```
 ```{r, echo=FALSE}
-object1 <= read.csv(file="China_EO_49to17.csv", fileEncoding = "latin1")
-object2 <= as_tibble(object1)
+object1 = read.csv(file="China_EO_49to17.csv", fileEncoding = "latin1")
+object2 = as_tibble(object1)
 object2$Year <- as.integer(object2$Year)
-Year <= seq(from=1949,to=2017)
-object2$Year <= Year
+Year = seq(from=1949,to=2017)
+object2$Year = Year
 #write visualizations here
 municipalities <- select(object2, Year, Beijing_Enterprise, Tianjin_Enterprise, Shanghai_Enterprise, Chongqing_Enterprise)
 MunicipalityComparison <- ggplot(data = municipalities, aes(x = Year)) # New ggplot
@@ -93,9 +93,25 @@ print(graph)
 ratio <- function(object1, province1, province2) {
   object1 = as_tibble(object1) %>% filter(Year >= 2000) %>% arrange(desc(Year))
   object1 = object1[c("Year", province1, province2)] %>% mutate(Output_Ratio = .[[2]]/ .[[3]])
+  object1 = object1 %>% filter(!is.na(Output_Ratio))
   return (object1)
 }
-object1 = read.csv("China_EO_49to17.csv")
-# Example
-# output = ratio(object1, "Guizhou_Output", "Yunnan_Output")
+
+north_south = ratio(as_tibble(object2), "Heilongjiang_Output", "Hainan_Output")
+
+north_south_plot = ggplot(data = north_south, mapping = aes(x = Year, y = Output_Ratio)) + 
+  geom_point() + 
+  geom_smooth(method = 'loess', formula = y ~ x, se = FALSE) +
+  ggtitle("North vs South Output Ratio")
+
+east_west = ratio(object1, "Xinjiang_Output", "Zhejiang_Output")
+
+east_west_plot = ggplot(data = east_west, mapping = aes(x = Year, y = Output_Ratio)) + 
+  geom_point() + 
+  geom_smooth(method = 'loess', formula = y ~ x, se = FALSE) + 
+  ggtitle("East vs West Output Ratio")
+
+
+print(north_south_plot)
+print(east_west_plot)
 ```
