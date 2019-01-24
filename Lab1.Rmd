@@ -66,3 +66,20 @@ MunicipalityComparison + BJ + TJ + SH + CQ + scale_color_manual(name="Municipali
 <!-- Find other data, visualize it, use it to modify existing data and visualize result -->
 <!-- "Hidden" variables, visualize, maybe use statistical tests -->
 <!-- Aggregate data by region -->
+
+```{r, echo=FALSE}
+# Function to automate producing output ratios
+# object1 = the data
+# province1 / province2
+ratio <- function(object1, province1, province2) {
+  object1 = as_tibble(object1) %>% filter(Year >= 2000) %>% arrange(desc(Year))
+  object1 = object1[c("Year", province1, province2)] %>% mutate(Output_Ratio = .[[2]]/ .[[3]])
+  return (object1)
+}
+object1 = read.csv("China_EO_49to17.csv")
+
+# Example
+# output = ratio(object1, "Guizhou_Output", "Yunnan_Output")
+
+
+```
