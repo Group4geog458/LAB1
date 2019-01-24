@@ -81,9 +81,6 @@ print(graph)
 
 ```
 
-### Macklan's Reflection
-
-
 
 ```{r, echo=FALSE}
 # Function to automate producing output ratios
