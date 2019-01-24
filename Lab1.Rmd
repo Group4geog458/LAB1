@@ -17,10 +17,10 @@ While it seems odd that cities like Shanghai and Beijing are included in statist
 Additionally, Hong Kong and [Macau](https://en.wikipedia.org/wiki/Macau) are not included in this dataset becuase although they are "special administrative regions" (SAR) of the PRC, SAR's are "highly autonomous and self-governing sub national subject of the People's Republic of China that is directly under the Central People's Government". In this way, Hong Kong and Macau control their own economies, are only really tied to China in terms of foreign policy and military/defense and therefore produce economic statistics through their own governments. To view Macau's economic data it can be accessed [here](https://www.gov.mo/en/about-macao-sar/statistics/). To view Hong Kong's economic data it can be accessed [here](https://www.hkeconomy.gov.hk/en/situation/index.htm). <!-- Should we include something about Taiwan in this section? -->
 
 
-<!--Explain the time periods that might be the least reliable, and maybe summarize some of the suggested methods for “correcting” things like GDP data. *Need help with this section- I have not found what time periods are the least reliable nor have I found methods?? See the comments and if you have data, please add-->
+<!--Explain the time periods that might be the least reliable, and maybe summarize some of the suggested methods for "correcting" things like GDP data. *Need help with this section- I have not found what time periods are the least reliable nor have I found methods?? See the comments and if you have data, please add-->
 Chinese statistics have been notoriously flawed for several reasons ranging from imprecise units of measurement to a lack of attention toward rural areas. In the late 1950s, statistics were seen as a way to show off accomplishment, rather than to communicate accurate and useful data. Throughout the 1950s there was a shortage of employees qualified to handle this data. As a consequence, workers were pressured to submit whatever report they had, regardless of accuracy. This led to a "virtual blackout" in the early 1960s. <!--This article also says that heavy industry statistics tend to be more accurate than those of light industry - wonder how this relates to the data?--> There is a very different cultural attitude toward statistical information than in the US. It is not only due to wanting to present itself well, but a common viewpoint in China is that "a slight discrepancy in figures does no harm".
 Generally speaking, economic statistics produced by the central government are consistently inflated in comparison to those produced locally/regionally. The central government has long evaluated local government officials on the basis of The National Bureau of Statistics of China's GDP. Because of this motivation to inflate national statistics, the socialist period (1949-1980) will include <!-- probably inflated data? --> the "reform and opening period" beginning in 1982 will include <!-- more accurate data reflecting changes in the more-free market ? -->
-In 2017 China established the Statistical Law Enforcement Supervision Bureau and the government issued “Regulations for Implementation of the Law on Statistics,” which were intended to enable punishment of statistics forgery. 
+In 2017 China established the Statistical Law Enforcement Supervision Bureau and the government issued "Regulations for Implementation of the Law on Statistics," which were intended to enable punishment of statistics forgery. 
 Statistics produced by private organizations tend to have more accurate data than those produced by the central government.
 <!-- general source for this, Phil just said this in the lab 1 prompt -->
 
@@ -49,7 +49,6 @@ object2$Year <- as.integer(object2$Year)
 Year <= seq(from=1949,to=2017)
 object2$Year <= Year
 #write visualizations here
-
 municipalities <- select(object2, Year, Beijing_Enterprise, Tianjin_Enterprise, Shanghai_Enterprise, Chongqing_Enterprise)
 MunicipalityComparison <- ggplot(data = municipalities, aes(x = Year)) # New ggplot
 Colors <- c("Beijing" = "blueviolet", "Tianjin" = "red", "Shanghai" = "cyan3", "Chongqing" = "blue") # Colors and labels for legend
@@ -97,9 +96,6 @@ ratio <- function(object1, province1, province2) {
   return (object1)
 }
 object1 = read.csv("China_EO_49to17.csv")
-
 # Example
 # output = ratio(object1, "Guizhou_Output", "Yunnan_Output")
-
-
 ```
