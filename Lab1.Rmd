@@ -19,10 +19,7 @@ Additionally, Hong Kong and [Macau](https://en.wikipedia.org/wiki/Macau) are not
 
 <!--Explain the time periods that might be the least reliable, and maybe summarize some of the suggested methods for “correcting” things like GDP data. *Need help with this section- I have not found what time periods are the least reliable nor have I found methods?? See the comments and if you have data, please add-->
 Chinese statistics have been notoriously flawed for several reasons ranging from imprecise units of measurement to a lack of attention toward rural areas. In the late 1950s, statistics were seen as a way to show off accomplishment, rather than to communicate accurate and useful data. Throughout the 1950s there was a shortage of employees qualified to handle this data. As a consequence, workers were pressured to submit whatever report they had, regardless of accuracy. This led to a "virtual blackout" in the early 1960s. <!--This article also says that heavy industry statistics tend to be more accurate than those of light industry - wonder how this relates to the data?--> There is a very different cultural attitude toward statistical information than in the US. It is not only due to wanting to present itself well, but a common viewpoint in China is that "a slight discrepancy in figures does no harm".
-Generally speaking, economic statistics produced by the central government are consistently inflated in comparison to those produced locally/regionally. The central government has long evaluated local government officials on the basis of The National Bureau of Statistics of China's GDP. Because of this motivation to inflate national statistics, the socialist period (1949-1980) will include 
-<!-- probably inflated data? -->
-the "reform and opening period" beginning in 1982 will include 
-<!-- more accurate data reflecting changes in the more-free market ? -->
+Generally speaking, economic statistics produced by the central government are consistently inflated in comparison to those produced locally/regionally. The central government has long evaluated local government officials on the basis of The National Bureau of Statistics of China's GDP. Because of this motivation to inflate national statistics, the socialist period (1949-1980) will include <!-- probably inflated data? --> the "reform and opening period" beginning in 1982 will include <!-- more accurate data reflecting changes in the more-free market ? -->
 In 2017 China established the Statistical Law Enforcement Supervision Bureau and the government issued “Regulations for Implementation of the Law on Statistics,” which were intended to enable punishment of statistics forgery. 
 Statistics produced by private organizations tend to have more accurate data than those produced by the central government.
 <!-- general source for this, Phil just said this in the lab 1 prompt -->
@@ -37,54 +34,61 @@ Sources:
 * [The Problem of Chinese Statistics, CIA](https://www.cia.gov/library/center-for-the-study-of-intelligence/kent-csi/vol16no4/html/v17i1a07p_0001.htm)
 <!--Here are a couple more articles on issues with Chinese statistics: https://www.economist.com/finance-and-economics/2018/07/07/chinas-statistics-are-bad-many-criticisms-of-them-are-worse and https://www.bloomberg.com/news/articles/2018-04-19/china-s-economic-stats-have-a-credibility-problem - I can send PDF copies if you run out of free articles to view on the sites-->
 
-## Part 2 
+## Part 2: Exploring and Visualizing the Data
 
-# Explain interesting changes over time
+<!-- Explain interesting changes over time -->
 
-# 5 Visualizations + short explanations
+<!-- 5 Visualizations + short explanations -->
 ```{r, include=FALSE}
 library(tidyverse)
 ```
 ```{r, echo=FALSE}
-object1 = read.csv(file="China_EO_49to17.csv", fileEncoding = "latin1")
-object2 = as_tibble(object1)
-object2$Year %>% as.integer(object2$Year)
-Year = seq(from=1949,to=2017)
-object2$Year = Year
+object1 <= read.csv(file="China_EO_49to17.csv", fileEncoding = "latin1")
+object2 <= as_tibble(object1)
+object2$Year <- as.integer(object2$Year)
+Year <= seq(from=1949,to=2017)
+object2$Year <= Year
 #write visualizations here
 
+municipalities <- select(object2, Year, Beijing_Enterprise, Tianjin_Enterprise, Shanghai_Enterprise, Chongqing_Enterprise)
+MunicipalityComparison <- ggplot(data = municipalities, aes(x = Year)) # New ggplot
+Colors <- c("Beijing" = "blueviolet", "Tianjin" = "red", "Shanghai" = "cyan3", "Chongqing" = "blue") # Colors and labels for legend
+BJ <- geom_line(aes(y = Beijing_Enterprise, color = "Beijing"), size = 1.5)
+TJ <- geom_line(aes(y = Tianjin_Enterprise, color = "Tianjin"), size = 1.5)
+SH <- geom_line(aes(y = Shanghai_Enterprise, color = "Shanghai"), size = 1.5)
+CQ <- geom_line(aes(y = Chongqing_Enterprise, color = "Chongqing"), size = 1.5)
+MunicipalityComparison + BJ + TJ + SH + CQ + scale_color_manual(name="Municipality", values = Colors) + ggtitle("Change in Enterprise Counts in Chinese Municipalities") + theme_bw() + ylab("Enterprise Count")
+
 # Macklan's graph
-
 m_data = object2 %>% filter(Year > 1980) %>% select("Year", "Xinjiang_Output", "Yunnan_Output", "Fujian_Output", "Heilongjiang_Output", "Shaanxi_Output")
-
 # Taking the columns for these 5 provinces and putting them into two columns, Province (takes the column name) and 
 # Output (takes the value within each province's column)
 m_data = gather(m_data, "Xinjiang_Output", "Yunnan_Output", "Fujian_Output", "Heilongjiang_Output", "Shaanxi_Output", key="Province", value="Output")
-
 # Removing the _Output from each value for Province
 m_data = m_data %>% mutate(Province = replace(Province, Province=="Xinjiang_Output", "Xinjiang (NW)")) %>% 
   mutate(Province = replace(Province, Province=="Yunnan_Output", "Yunnan (SW)")) %>% 
   mutate(Province = replace(Province, Province=="Fujian_Output", "Fujian (SE)")) %>% 
   mutate(Province = replace(Province, Province=="Heilongjiang_Output", "Heilongjiang (NE)")) %>% 
   mutate(Province = replace(Province, Province=="Shaanxi_Output", "Shaanxi"))
-
 # Removing all na values within Output
 m_data = m_data %>% filter(!is.na(Output))
-
 graph = ggplot(data = m_data, mapping = aes(x = Year, y = Output, color = Province)) +
   geom_point() +
   geom_line(stat="smooth", method="loess", formula = y~ x, se = FALSE, alpha=0.5) + 
   ggtitle("How Geographic placement within China Affects Output from 1980-2017") + 
   theme(plot.title = element_text(hjust = 0.5))
-
 print(graph)
-
 ```
 
+## Part 3: Modifying the Data
+<!--Function for output ratios, plot a few interesting comparisons-->
+<!-- Plot and summarize relationship between output and number of enterprises for specific provinces -->
+<!-- Find other data, visualize it, use it to modify existing data and visualize result -->
+<!-- "Hidden" variables, visualize, maybe use statistical tests -->
+<!-- Aggregate data by region -->
 
 ```{r, echo=FALSE}
 # Function to automate producing output ratios
-
 # object1 = the data
 # province1 / province2
 ratio <- function(object1, province1, province2) {
@@ -92,11 +96,10 @@ ratio <- function(object1, province1, province2) {
   object1 = object1[c("Year", province1, province2)] %>% mutate(Output_Ratio = .[[2]]/ .[[3]])
   return (object1)
 }
+object1 = read.csv("China_EO_49to17.csv")
 
+# Example
 # output = ratio(object1, "Guizhou_Output", "Yunnan_Output")
-# output
+
+
 ```
-
-
-
-
