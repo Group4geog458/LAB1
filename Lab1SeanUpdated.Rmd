@@ -1,0 +1,44 @@
+---
+title: "GroupLab1"
+author: "sbfogelb"
+date: "January 23, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+###Group Lab 1 - Sean visual
+
+```{r}
+library(tidyverse)
+library(rmarkdown)
+Municipalities=read.csv("Municipalities.csv")
+```
+
+```{r}
+#Renaming output columns to look better on visual
+names(Municipalities) <- c("Year", "Beijing_Enterprises", "Beijing", "Tianjin_Enterprises", "Tianjin", "Shanghai_Enterprises", "Shanghai", "Chongqing_Enterprises", "Chongqing")
+Municipalities
+```
+
+```{r}
+#Creating master ggplot object
+
+ggplotMaster <- ggplot(data=Municipalities, aes(x=Year))
+LegendColors <- c("Beijing" = "coral1", "Chongqing" = "chartreuse2", "Shanghai" ="cyan3", "Tianjin" = "blueviolet")
+```
+
+```{r}
+#adding geom_line objects for each Municipalities
+BeijingOutput <- geom_line(aes(y=Beijing, color="Beijing"), size = 1.1, alpha = 0.5)
+TianjinOutput <- geom_line(aes(y=Tianjin, color="Tianjin"), size = 1.1, alpha = 0.5) 
+ShanghaiOutput <- geom_line(aes(y=Shanghai, color="Shanghai"), size = 1.1, alpha = 0.5) 
+ChongqingOutput <- geom_line(aes(y=Chongqing, color="Chongqing"), size = 1.1, alpha = 0.5) 
+ggplotMaster + BeijingOutput + TianjinOutput + ShanghaiOutput + ChongqingOutput + scale_color_manual(name="Municipality", values = LegendColors) + ggtitle("Change in Municipality Output 1949-2017") + theme(plot.title = element_text(hjust = 0.5)) + ylab("Output")
+
+```
+
+#Reflection
+<! The graph "Change in Municpality Output 1949-2017" shows the increase in output from each municipality of China between 1949 and 2017. When comparing to the graph of change in municipality enterprises, you can see a reverse trend between the amount of enterprises and output. Enterprises decrease from 1949 to 2017 while output increases.
