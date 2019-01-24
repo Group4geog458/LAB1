@@ -59,7 +59,35 @@ SH <- geom_line(aes(y = Shanghai_Enterprise, color = "Shanghai"), size = 1.5)
 CQ <- geom_line(aes(y = Chongqing_Enterprise, color = "Chongqing"), size = 1.5)
 MunicipalityComparison + BJ + TJ + SH + CQ + scale_color_manual(name="Municipality", values = Colors) + ggtitle("Change in Enterprise Counts in Chinese Municipalities") + theme_bw() + ylab("Enterprise Count")
 ```
+#Gabby's visualization
 
+China is essentially broken up into two main regions: the East and West regions, which are divided by the [15-inch Isohyet](https://www.forbes.com/sites/johnmauldin/2016/02/25/5-maps-that-explain-chinas-strategy/#3c257f4165b7). This line represents the divide based on annual rainfall needed for an agricultural economy. The Western provinces receive less than 15-inches of rainfall a year, resulting in smaller economic outputs. On the contrary, the Eastern provinces and municipalities get the majority of the yearly rainfall, which contribute to higher economic outputs and greater population density. Thus, this graph aims to show the significant total outputs each region has over the course of a 30-year period.
+```{r, include=FALSE}
+#Selecting 30-year period
+years30<-filter(object2, Year == 1987 | Year == 1988 | Year == 1989 | Year == 1990 | Year == 1991 | Year == 1992 | Year == 1993 | Year == 1994 | Year == 1995 | Year == 1996 | Year == 1997 | Year == 1998 | Year == 1999 | Year == 2000 | Year == 2001 | Year == 2002 | Year == 2003 | Year == 2004 | Year == 2005 | Year == 2006 | Year == 2007 | Year == 2008 | Year == 2009 | Year == 2010 | Year == 2011 | Year == 2012 | Year == 2013 | Year == 2014 | Year == 2015 | Year == 2016 | Year == 2017)
+```
+```{r, echo=TRUE, include=FALSE}
+#All output values
+all<- select(years30,Year, Heilongjiang_Output, InnerMongolia_Output, Ningxia_Output, Gansu_Output, Qinghai_Output, Tibet_Output, Xinjiang_Output, Beijing_Output, Tianjin_Output, Hebei_Output, Shanxi_Output, Liaoning_Output, Jilin_Output, Shanghai_Output, Jiangsu_Output, Zhejiang_Output, Anhui_Output, Fujian_Output, Jiangxi_Output, Shandong_Output, Henan_Output, Hunan_Output, Hubei_Output, Guangdong_Output, Guangxi_Output, Hainan_Output, Chongqing_Output, Sichuan_Output, Guizhou_Output, Yunnan_Output, Shaanxi_Output)
+```
+#Calculating Total Output for West Provinces 
+```{r, echo=TRUE, include=FALSE}
+all2<- mutate(all,
+       Total_Output_West = Heilongjiang_Output + InnerMongolia_Output + Ningxia_Output + Gansu_Output + Qinghai_Output + Tibet_Output + Xinjiang_Output)
+```
+#Calculating Total Output for East Provinces
+```{r, echo=TRUE, include=FALSE}
+final<- mutate(all2,
+       Total_Output_East = Beijing_Output + Tianjin_Output + Hebei_Output + Shanxi_Output + Liaoning_Output + Jilin_Output + Shanghai_Output + Jiangsu_Output + Zhejiang_Output + Anhui_Output + Fujian_Output + Jiangxi_Output + Shandong_Output + Henan_Output + Hubei_Output + Hunan_Output + Guangdong_Output + Guangxi_Output + Hainan_Output + Chongqing_Output + Sichuan_Output + Guizhou_Output + Yunnan_Output + Shaanxi_Output)
+```
+#Final Graph
+```{r, echo=FALSE}
+gross_output<- ggplot(data = final, aes(x= Year))
+NEW_colors<- c("West" = "coral1", "East" = "dodgerblue2")
+WEST_new<- geom_line(aes(y= Total_Output_West, color="West"), size= 1.5, na.rm = TRUE)
+EAST_new<- geom_line(aes(y= Total_Output_East, color="East"), size= 1.5, na.rm = TRUE)
+gross_output + WEST_new + EAST_new + scale_color_manual(name= "Key", values = NEW_colors) +xlab("Year")+ylab("Total Output (100 million RMB)") + ggtitle("Total Gross Output of the East and West Provinces of China") +theme_gray() + theme(axis.text.x= element_text(size = 8)) + theme(axis.text.y= element_text(size = 8)) + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title.x = element_text(size= 11, face = "bold")) + theme(axis.title.y =element_text(size= 11, face = "bold")) + theme(plot.title = element_text(face = "bold", size = 14)) + scale_x_continuous(breaks = c(1990, 1995, 2000, 2005, 2010, 2015)) + scale_y_continuous(breaks = c(0, 100000, 200000, 300000, 400000, 500000, 600000, 700000)) 
+```
 ## Part 3: Modifying the Data
 <!--Function for output ratios, plot a few interesting comparisons-->
 <!-- Plot and summarize relationship between output and number of enterprises for specific provinces -->
