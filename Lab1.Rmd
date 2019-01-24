@@ -40,6 +40,8 @@ Sources:
 
 <!-- 5 Visualizations + short explanations -->
 ```{r, include=FALSE}
+library(plyr)
+library(ggplot2)
 library(tidyverse)
 ```
 ```{r, echo=FALSE}
