@@ -42,6 +42,7 @@ ggplot(data=Municipalities, aes(x=Year, y=Beijing)) +geom_line(alpha=.4) +xlab("
 #Creating master ggplot object
 
 ggplotMaster <- ggplot(data=Municipalities, aes(x=Year))
+LegendColors <- c("Beijing" = "coral1", "Chongqing" = "chartreuse2", "Shanghai" ="cyan3", "Tianjin" = "blueviolet")
 
 ```
 
@@ -51,7 +52,7 @@ BeijingOutput <- geom_line(aes(y=Beijing, color="Beijing"), size = 1.1, alpha = 
 TianjinOutput <- geom_line(aes(y=Tianjin, color="Tianjin"), size = 1.1, alpha = 0.5) 
 ShanghaiOutput <- geom_line(aes(y=Shanghai, color="Shanghai"), size = 1.1, alpha = 0.5) 
 ChongqingOutput <- geom_line(aes(y=Chongqing, color="Chongqing"), size = 1.1, alpha = 0.5) 
-ggplotMaster + BeijingOutput + TianjinOutput + ShanghaiOutput + ChongqingOutput + ggtitle("Change in Municipality Output 1949-2017") + theme(plot.title = element_text(hjust = 0.5)) + ylab("Output")
+ggplotMaster + BeijingOutput + TianjinOutput + ShanghaiOutput + ChongqingOutput + scale_color_manual(name="Municipality", values = LegendColors) + ggtitle("Change in Municipality Output 1949-2017") + theme(plot.title = element_text(hjust = 0.5)) + ylab("Output")
 
 ```
 
