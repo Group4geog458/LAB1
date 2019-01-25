@@ -83,3 +83,38 @@ object1 = read.csv("China_EO_49to17.csv")
 
 
 ```
+```{r, echo = FALSE}
+#Part 3 second part plots. Share of national output total for selected provinces in different areas of the country. I will write explanations for it tonight
+outputs <-read_csv(file="Output_Only.csv")
+part3 <- as_tibble(outputs)
+selection <- c("Shanghai" = "cyan3", "Xinjiang" = "red", "Beijing" = "darkviolet", "Chongqing" = "darkorange")
+east_west <- ggplot(data = part3, aes(x = Year))
+shanghai <- geom_line(aes(y = Shanghai_Output_Percentage, color = "Shanghai"), size = 1.5)
+xinjiang <- geom_line(aes(y = Xinjiang_Output_Percentage, color = "Xinjiang"), size = 1.5)
+east_west <- east_west + shanghai + xinjiang + scale_color_manual(name = "Province/Municipalilty", values = selection) + ggtitle("Eastern vs Western Province") + ylab("Output Percentage") + theme(plot.title = element_text(hjust = 0.5))
+east_west
+
+north_south <- ggplot(data = part3, aes(x = Year))
+beijing <- geom_line(aes(y = Beijing_Output_Percentage, color = "Beijing"), size = 1.5)
+chongqing <- geom_line(aes(y = Chongqing_Output_Percentage, color = "Chongqing"), size = 1.5)
+north_south <- north_south + chongqing + beijing + scale_color_manual(name = "Province/Municipalilty", values = selection) + ggtitle("Northern vs Southern Province") + ylab("Output Percentage")+ theme(plot.title = element_text(hjust = 0.5))
+north_south
+```
+```{r, echo = FALSE}
+# Part 3, sixth part, aggregated data by region from original csv. Need to add the new population data by region. Will do tonight
+region_data <- transmute(object2, year = Year,
+n_ent = Beijing_Enterprise + Tianjin_Enterprise + Hebei_Enterprise + Shanxi_Enterprise, #Should we exclude inner mongolia? Lots of NA values
+n_output = Beijing_Output + Tianjin_Output + Hebei_Output + Shanxi_Output,
+ne_ent = Liaoning_Enterprise + Jilin_Enterprise + Heilongjiang_Enterprise,
+ne_output = Liaoning_Output + Jilin_Output + Heilongjiang_Output,
+e_ent = Shanghai_Enterprise + Jiangsu_Enterprise + Zhejiang_Enterprise + Anhui_Enterprise + Fujian_Enterprise + Jiangxi_Enterprise + Shandong_Enterprise,
+e_output = Shanghai_Output + Jiangsu_Output + Zhejiang_Output + Anhui_Output + Fujian_Output + Jiangxi_Output + Shandong_Output,
+scentral_ent = Henan_Enterprise + Hubei_Enterprise + Hunan_Enterprises + Guangdong_Enterprise + Guangxi_Enterprise + Hainan_Enterprise,
+scentral_output = Henan_Output + Hubei_Output + Hunan_Output + Guangdong_Output + Guangxi_Output + Hainan_Output,
+sw_ent = Chongqing_Enterprise + Sichuan_Enterprise + Guizhou_Enterprise + Yunnan_Enterprise + Tibet_Enterprise,
+sw_output = Chongqing_Output + Sichuan_Output + Guizhou_Output + Yunnan_Output + Tibet_Output,
+nw_ent = Shaanxi_Enterprise + Gansu_Enterprise + Qinghai_Enterprise + Ningxia_Enterprise + Xinjiang_Enterprise,
+nw_output = Shaanxi_Output + Gansu_Output + Qinghai_Output + Ningxia_Output + Xinjiang_Output)
+region_data
+
+```
