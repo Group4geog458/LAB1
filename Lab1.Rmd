@@ -57,28 +57,53 @@ TJ <- geom_line(aes(y = Tianjin_Enterprise, color = "Tianjin"), size = 1.5)
 SH <- geom_line(aes(y = Shanghai_Enterprise, color = "Shanghai"), size = 1.5)
 CQ <- geom_line(aes(y = Chongqing_Enterprise, color = "Chongqing"), size = 1.5)
 MunicipalityComparison + BJ + TJ + SH + CQ + scale_color_manual(name="Municipality", values = Colors) + ggtitle("Change in Enterprise Counts in Chinese Municipalities") + theme_bw() + ylab("Enterprise Count")
+```
 
-# Macklan's graph
+___
+### Macklan's Visualization
+China has a very diverse economy, although it does not appear that way according to the media. China is commonly known for its manufacturing, but China still has a very large portion of its economy in agriculture. China's size and diverse landscapes plays a large part into why it is still has a large agricultural industry. In order to understand how different every province is within China, I decieded to look at the four "corners" of China, as well as a province right in the center of the country. 
+
+I picked Xinjiang (North West), Yunnan (South West), Fujian (South East), Heilongjiang (North East) and Shaanxi (Center) as the five provinces to analyze their outputs per year. Aftert looking at the outputs for these five provinces, I noticed that the outputs were very low and similar until 1980, where there started to be a growing seperation of the outputs. 
+
+``` {r, echo=FALSE}
 m_data = object2 %>% filter(Year > 1980) %>% select("Year", "Xinjiang_Output", "Yunnan_Output", "Fujian_Output", "Heilongjiang_Output", "Shaanxi_Output")
+```
+
+In order to have all of the outputs for these provinces on one map, I had to alter the tibble. Rather than having every province in their own column, I decided to have one column for the province name and another for the corresponding province's output.
+``` {r, echo=FALSE}
 # Taking the columns for these 5 provinces and putting them into two columns, Province (takes the column name) and 
 # Output (takes the value within each province's column)
 m_data = gather(m_data, "Xinjiang_Output", "Yunnan_Output", "Fujian_Output", "Heilongjiang_Output", "Shaanxi_Output", key="Province", value="Output")
+```
+
+ In the csv file given each of the columns has _Output after each province's name, so I removed the _Output.
+```{r, echo=FALSE}
 # Removing the _Output from each value for Province
 m_data = m_data %>% mutate(Province = replace(Province, Province=="Xinjiang_Output", "Xinjiang (NW)")) %>% 
   mutate(Province = replace(Province, Province=="Yunnan_Output", "Yunnan (SW)")) %>% 
   mutate(Province = replace(Province, Province=="Fujian_Output", "Fujian (SE)")) %>% 
   mutate(Province = replace(Province, Province=="Heilongjiang_Output", "Heilongjiang (NE)")) %>% 
   mutate(Province = replace(Province, Province=="Shaanxi_Output", "Shaanxi"))
+```
+
+After altering the data I noticed that there was a very large number of NA values for the outputs, so I removed those rows from the graph. 
+```{r, echo=FALSE}
 # Removing all na values within Output
 m_data = m_data %>% filter(!is.na(Output))
+```
+
+
+```{r, echo=FALSE}
 graph = ggplot(data = m_data, mapping = aes(x = Year, y = Output, color = Province)) +
   geom_point() +
-  geom_line(stat="smooth", method="loess", formula = y~ x, se = FALSE, alpha=0.5) + 
+  geom_line(stat="smooth", method="loess", formula = y~ x, se = FALSE) + 
   ggtitle("How Geographic placement within China Affects Output from 1980-2017") + 
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme_bw()
 print(graph)
 ```
 
+___
 ## Part 3: Modifying the Data
 <!--Function for output ratios, plot a few interesting comparisons-->
 <!-- Plot and summarize relationship between output and number of enterprises for specific provinces -->
@@ -99,18 +124,21 @@ ratio <- function(object1, province1, province2) {
 
 north_south = ratio(as_tibble(object2), "Heilongjiang_Output", "Hainan_Output")
 
-north_south_plot = ggplot(data = north_south, mapping = aes(x = Year, y = Output_Ratio)) + 
+north_south_plot = ggplot(data = north_south, mapping = aes(x = Year, y = Output_Ratio, color = "Heilongjiang/ Hainan")) + 
   geom_point() + 
-  geom_smooth(method = 'loess', formula = y ~ x, se = FALSE) +
-  ggtitle("North vs South Output Ratio")
+  geom_smooth(method = 'loess', formula = y ~ x, se = FALSE, color = "gray") +
+  ggtitle("North / South Output Ratio") + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme_bw()
 
 east_west = ratio(object1, "Xinjiang_Output", "Zhejiang_Output")
 
-east_west_plot = ggplot(data = east_west, mapping = aes(x = Year, y = Output_Ratio)) + 
+east_west_plot = ggplot(data = east_west, mapping = aes(x = Year, y = Output_Ratio, color = "Xinjiang/ Zheijiang")) + 
   geom_point() + 
-  geom_smooth(method = 'loess', formula = y ~ x, se = FALSE) + 
-  ggtitle("East vs West Output Ratio")
-
+  geom_smooth(method = 'loess', formula = y ~ x, se = FALSE, color = "gray") + 
+  ggtitle("East / West Output Ratio") + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme_bw()
 
 print(north_south_plot)
 print(east_west_plot)
