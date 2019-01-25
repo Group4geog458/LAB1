@@ -49,11 +49,14 @@ object2$Year <- as.integer(object2$Year)
 Year <= seq(from=1949,to=2017)
 object2$Year <= Year
 #write visualizations here
-
-municipalities <- select(object2, Year, Beijing_Enterprise, Tianjin_Enterprise, Shanghai_Enterprise, Chongqing_Enterprise)
+```
+<!--Emmi visualization-->
+I chose to plot the enterprise counts of the four non-province municipalities included in the data. A sharp decline in the mid-1950s is attributed to private farms being aggregated into larger organizations. On the plot, it appears as though the count decreased and enterprises had a mass closing, but it was the result of combining these individual entities. Influential economic reforms started in 1979, causing new growth. Patterns post-2000 are indicative of a growing GDP in the late 2000s followed by a decline in growth. Source: [China's Economic Rise by Wayne Morrison](https://fas.org/sgp/crs/row/RL33534.pdf)
+```{r, echo = FALSE}
+municipalities <- select(object2, Year, Beijing_Enterprise, Tianjin_Enterprise, Shanghai_Enterprise, Chongqing_Enterprise) # Creates new variable with specific columns to examine
 MunicipalityComparison <- ggplot(data = municipalities, aes(x = Year)) # New ggplot
 Colors <- c("Beijing" = "blueviolet", "Tianjin" = "red", "Shanghai" = "cyan3", "Chongqing" = "blue") # Colors and labels for legend
-BJ <- geom_line(aes(y = Beijing_Enterprise, color = "Beijing"), size = 1.5)
+BJ <- geom_line(aes(y = Beijing_Enterprise, color = "Beijing"), size = 1.5) # Store each line as a variable
 TJ <- geom_line(aes(y = Tianjin_Enterprise, color = "Tianjin"), size = 1.5)
 SH <- geom_line(aes(y = Shanghai_Enterprise, color = "Shanghai"), size = 1.5)
 CQ <- geom_line(aes(y = Chongqing_Enterprise, color = "Chongqing"), size = 1.5)
@@ -83,8 +86,9 @@ object1 = read.csv("China_EO_49to17.csv")
 
 
 ```
+After calculating the national output total for each year, we calculated the output percentages for selected provinces in different regions. Xinjiang,a northwestern province, is sparsely populated at around 30 people per square mile. We compared it to the dense (over 300 times that of Xinjiang!) and urban Shanghai. The plot showed Shanghai consistently having a greater share of the output total than Xinjiang, with an extreme spike around 2010. Xinjiang is a predominantly agricultural region, with local governments encouraging its industry. It has its own significant economy, but is dwarfed by the scale of massive Shanghai.
 ```{r, echo = FALSE}
-#Part 3 second part plots. Share of national output total for selected provinces in different areas of the country. I will write explanations for it tonight
+#Part 3 second part plots. Share of national output total for selected provinces in different areas of the country. Added explanations.
 outputs <-read_csv(file="Output_Only.csv")
 part3 <- as_tibble(outputs)
 selection <- c("Shanghai" = "cyan3", "Xinjiang" = "red", "Beijing" = "darkviolet", "Chongqing" = "darkorange")
@@ -93,7 +97,9 @@ shanghai <- geom_line(aes(y = Shanghai_Output_Percentage, color = "Shanghai"), s
 xinjiang <- geom_line(aes(y = Xinjiang_Output_Percentage, color = "Xinjiang"), size = 1.5)
 east_west <- east_west + shanghai + xinjiang + scale_color_manual(name = "Province/Municipalilty", values = selection) + ggtitle("Eastern vs Western Province") + ylab("Output Percentage") + theme(plot.title = element_text(hjust = 0.5))
 east_west
-
+```
+The major cities of Beijing and Chongqing were chosen for a north-south comparison. Beijing, located in the north, is a major world city as well as China's capital. Chongqing is a municipality in the southwest. It has a higher population but lower density than Beijing because of its larger area. The plot shows that Chongqing had slower output growth than Beijing until the mid 2010s, where both municipalities showed a steep spike in output percentages. After this dramatic peak, both municipalities' percentages dropped, corresponding to Shanghai's extreme increase at the same time.
+```{r, echo = FALSE}
 north_south <- ggplot(data = part3, aes(x = Year))
 beijing <- geom_line(aes(y = Beijing_Output_Percentage, color = "Beijing"), size = 1.5)
 chongqing <- geom_line(aes(y = Chongqing_Output_Percentage, color = "Chongqing"), size = 1.5)
@@ -101,20 +107,23 @@ north_south <- north_south + chongqing + beijing + scale_color_manual(name = "Pr
 north_south
 ```
 ```{r, echo = FALSE}
-# Part 3, sixth part, aggregated data by region from original csv. Need to add the new population data by region. Will do tonight
-region_data <- transmute(object2, year = Year,
-n_ent = Beijing_Enterprise + Tianjin_Enterprise + Hebei_Enterprise + Shanxi_Enterprise, #Should we exclude inner mongolia? Lots of NA values
-n_output = Beijing_Output + Tianjin_Output + Hebei_Output + Shanxi_Output,
-ne_ent = Liaoning_Enterprise + Jilin_Enterprise + Heilongjiang_Enterprise,
-ne_output = Liaoning_Output + Jilin_Output + Heilongjiang_Output,
-e_ent = Shanghai_Enterprise + Jiangsu_Enterprise + Zhejiang_Enterprise + Anhui_Enterprise + Fujian_Enterprise + Jiangxi_Enterprise + Shandong_Enterprise,
-e_output = Shanghai_Output + Jiangsu_Output + Zhejiang_Output + Anhui_Output + Fujian_Output + Jiangxi_Output + Shandong_Output,
-scentral_ent = Henan_Enterprise + Hubei_Enterprise + Hunan_Enterprises + Guangdong_Enterprise + Guangxi_Enterprise + Hainan_Enterprise,
-scentral_output = Henan_Output + Hubei_Output + Hunan_Output + Guangdong_Output + Guangxi_Output + Hainan_Output,
-sw_ent = Chongqing_Enterprise + Sichuan_Enterprise + Guizhou_Enterprise + Yunnan_Enterprise + Tibet_Enterprise,
-sw_output = Chongqing_Output + Sichuan_Output + Guizhou_Output + Yunnan_Output + Tibet_Output,
-nw_ent = Shaanxi_Enterprise + Gansu_Enterprise + Qinghai_Enterprise + Ningxia_Enterprise + Xinjiang_Enterprise,
-nw_output = Shaanxi_Output + Gansu_Output + Qinghai_Output + Ningxia_Output + Xinjiang_Output)
-region_data
-
+# Part 3, sixth part, aggregated data by region from original csv. Added the new population data by region from another csv. NA values screw up the data in the region_data when I knit the document, but it is calculated correctly when I run the chunk in RStudio. Probably need to change NA values to 0?
+pop_csv <- read_csv(file = "AllProvincePop.csv")
+pop_byregion <- as_tibble(pop_csv)
+region_data <- transmute(object2, year = Year, # Selects only the new calculated columns
+n_ent = Beijing_Enterprise + Tianjin_Enterprise + Hebei_Enterprise + Shanxi_Enterprise + InnerMongolia_Enterprise, # North region enterprise
+n_output = Beijing_Output + Tianjin_Output + Hebei_Output + Shanxi_Output, # North region output
+ne_ent = Liaoning_Enterprise + Jilin_Enterprise + Heilongjiang_Enterprise, # Northeast region enterprise
+ne_output = Liaoning_Output + Jilin_Output + Heilongjiang_Output, # Northeast region output
+e_ent = Shanghai_Enterprise + Jiangsu_Enterprise + Zhejiang_Enterprise + Anhui_Enterprise + Fujian_Enterprise + Jiangxi_Enterprise + Shandong_Enterprise, # East region enterprise
+e_output = Shanghai_Output + Jiangsu_Output + Zhejiang_Output + Anhui_Output + Fujian_Output + Jiangxi_Output + Shandong_Output, # East region output
+scentral_ent = Henan_Enterprise + Hubei_Enterprise + Hunan_Enterprises + Guangdong_Enterprise + Guangxi_Enterprise + Hainan_Enterprise, # South central region enterprise
+scentral_output = Henan_Output + Hubei_Output + Hunan_Output + Guangdong_Output + Guangxi_Output + Hainan_Output, # South central region output
+sw_ent = Chongqing_Enterprise + Sichuan_Enterprise + Guizhou_Enterprise + Yunnan_Enterprise + Tibet_Enterprise, # Southwest regionenterprise
+sw_output = Chongqing_Output + Sichuan_Output + Guizhou_Output + Yunnan_Output + Tibet_Output, # Southwest region output
+nw_ent = Shaanxi_Enterprise + Gansu_Enterprise + Qinghai_Enterprise + Ningxia_Enterprise + Xinjiang_Enterprise, # Northwest region enterprise
+nw_output = Shaanxi_Output + Gansu_Output + Qinghai_Output + Ningxia_Output + Xinjiang_Output) # Northwest region output
+pop_data <- transmute(pop_byregion, n_pop = North_Total_Pop, ne_pop = Northeast_Total_Pop, e_pop = East_Total_Pop, scentral_pop = SouthCentral_Total_Pop, sw_pop = Southwest_Total_Pop, nw_pop = Northwest_Total_Pop) # Selects only aggregate columns
+region_data <- cbind(region_data, pop_data) # Combines columns
+region_data # Displays new selection of data
 ```
