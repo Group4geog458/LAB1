@@ -51,7 +51,67 @@ object2 <= as_tibble(object1)
 object2$Year <- as.integer(object2$Year)
 Year <= seq(from=1949,to=2017)
 object2$Year <= Year
-#write visualizations here
+
+#Daniella's Visualization (part 2):
+## East and West Summary columns
+East_West_Enterprise <- mutate(object2, 
+       Total_Enterprise_West = Heilongjiang_Enterprise + InnerMongolia_Enterprise + Ningxia_Enterprise + Gansu_Enterprise + Qinghai_Enterprise + Tibet_Enterprise + Xinjiang_Enterprise,
+       Total_Enterprise_East = Beijing_Enterprise + Tianjin_Enterprise + Hebei_Enterprise + Shanxi_Enterprise + Liaoning_Enterprise + Jilin_Enterprise + Shanghai_Enterprise + Jiangsu_Enterprise + Zhejiang_Enterprise + Anhui_Enterprise + Fujian_Enterprise + Jiangxi_Enterprise + Shandong_Enterprise + Henan_Enterprise + Hubei_Enterprise + Hunan_Enterprises + Guangdong_Enterprise + Guangxi_Enterprise + Hainan_Enterprise + Chongqing_Enterprise + Sichuan_Enterprise + Guizhou_Enterprise + Yunnan_Enterprise + Shaanxi_Enterprise
+       ) %>%
+        select(Total_Enterprise_West, Total_Enterprise_East, Year)
+
+## ggplot comparing the total enterprises for both western and eastern provinces
+East_West_Enterprise_plot <- ggplot (data=East_West_Enterprise, aes(x=Year))
+EW_colors <- c("East" = "blue", "West" = "red")
+East <- geom_line(aes(y= Total_Enterprise_East, color="East"), size = 1.5)
+West <- geom_line(aes(y= Total_Enterprise_West, color="West"), size = 1.5)
+East_West_Enterprise_plot+East+West+scale_color_manual(name="Region", values=EW_colors)+xlab("Year") +ylab("Total Enterprises") +ggtitle("Total Enterprises for East and West Provinces, China 1949-2017") +theme_bw()
+```
+## Daniella's Reflection:
+The division of Eastern and Western is delineated based on the 15inch "Isohyet". The Eastern provinces are much more densely populated than the Western. Looking at this graph, there are no recorded enterprises until around 1980. The Western provinces see little change in their enterprises totals but does undergo a large drop around 1998/1999. While the Eastern Provinces experience much more variability, both regions experiences similar periods of "highs" around 1995 and 2010, and similiar periods of "lows" in 1998/1999 and 2011. 
+
+# Part 3 (Step 4)
+
+```{r, include=FALSE}
+library(tidyverse)
+```
+```{r, echo=FALSE}
+## Step 4/ Part 3  - Daniella : Downloaded pop data and plotted 
+Province_Pop <- read.csv(file="province_population.csv")
+Province_Pop_v1=as_tibble(Province_Pop)
+
+Province_Pop_v1$Year <- as.integer(Province_Pop_v1$Year)
+Year=seq(from=1949,to=2017)
+Province_Pop_v1$Year=Year
+
+Province_Pop_Plot <- ggplot(data=Province_Pop_v1, aes(x=Year, group=1))
+pop_colors <- c("Yunnan"="blue", "Xinjiang"="red", "Hunan"="green", "Heilongjiang"="coral", "Guangdong"="orange", "Beijing"="purple")
+Yunnan_pop <- geom_line(aes(y=Yunnan_Total_Perm_Pop_10000persons, color="Yunnan"), size=1.5)
+Xinjiang_pop <- geom_line(aes(y=Xinjiang_Total_Perm_Pop_10000persons, color="Xinjiang"), size=1.5)
+Hunan_pop <- geom_line(aes(y=Hunan_Total_Perm_Pop_10000persons, color="Hunan"), size=1.5)
+Heilongjiang_pop <- geom_line(aes(y=Heilongjiang_Total_Perm_Pop_10000persons, color="Heilongjiang"), size=1.5)
+Guangdong_pop <- geom_line(aes(y=Guangdong_Total_Perm_Pop_10000_persons, color="Guangdong"), size=1.5)
+Beijing_pop <- geom_line(aes(y=Beijing_Total_Perm_Pop_10000_.persons, color="Beijing"), size=1.5)
+Province_Pop_Plot+Yunnan_pop+Xinjiang_pop+Hunan_pop+Heilongjiang_pop+Guangdong_pop+Beijing_pop+scale_color_manual(name ="Key", values = pop_colors) +xlab("Year") +ylab("Total Permanent Population by Province (10,000 persons)") +ggtitle("Selected Province Population 1949-2017") +theme_gray()
+
+## Created a plot of those provinces with their outputs 
+object1 <= read.csv(file="China_EO_49to17.csv", fileEncoding = "latin1")
+object2 <= as_tibble(object1)
+object2$Year <- as.integer(object2$Year)
+Year <= seq(from=1949,to=2017)
+object2$Year <= Year
+
+Output_Pop_Comparison <- ggplot(data=object2, aes(x=Year, group=1))
+pop_colors <- c("Yunnan"="blue", "Xinjiang"="red", "Hunan"="green", "Heilongjiang"="coral", "Guangdong"="orange", "Beijing"="purple")
+Yunnan_output <- geom_line(aes(y=Yunnan_Output, color="Yunnan"), size=1.5)
+Xinjiang_output <- geom_line(aes(y=Xinjiang_Output, color="Xinjiang"), size=1.5)
+Hunan_output <- geom_line(aes(y=Hunan_Output, color="Hunan"), size=1.5, na.rm=TRUE)
+Heilongjiang_output <- geom_line(aes(y=Heilongjiang_Output, color="Heilongjiang"), size=1.5)
+Guangdong_output <- geom_line(aes(y=Guangdong_Output, color="Guangdong"), size=1.5)
+Beijing_output <- geom_line(aes(y=Beijing_Output, color="Beijing"), size=1.5)
+Output_Pop_Comparison+Yunnan_output+Xinjiang_output+Hunan_output+Heilongjiang_output+Guangdong_output+Beijing_output+scale_color_manual(name ="Key", values = pop_colors) +xlab("Year") +ylab("Total Output (100 Million RMB)") +ggtitle("Selected Province Output 1949-2017") +theme_gray()
+
 ```
 
-
+## Comparing Population and Outputs from Selected Provinces
+"Explain to the viewer why we added population..." Population data by province downloaded from "China Data Online."
