@@ -1,0 +1,440 @@
+---
+title: "Group Lab 1 - Changes in the Geography of Chinese Production"
+author: "Group 4 - Daniella, Emmi, Gabby, Macklan, Sean"
+date: "January 25, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Part 1: Understanding Our Data
+This dataset is derived from the [All China Data Center](https://chinadatacenter.net/Data/Services.aspx) which is formerly affiliated with the University of Michigan. The All China Data Center is run by the All China Marketing Research company, a private research firm. 
+
+While it seems odd that cities like Shanghai and Beijing are included in statistics with provinces, they are special cases in that they are technically [municipalities](https://en.wikipedia.org/wiki/Direct-administered_municipalities_of_China). They have a higher political status than other types of cities, and are considered to be on the same level as provinces. Because they are under direct control of the central government, they are included in this dataset. Other major cities of Tianjin and Chongqing are also classified as municipalities.
+
+Additionally, Hong Kong and [Macau](https://en.wikipedia.org/wiki/Macau) are not included in this dataset becuase although they are "special administrative regions" (SAR) of the PRC, SAR's are "highly autonomous and self-governing sub national subject of the People's Republic of China that is directly under the Central People's Government". In this way, Hong Kong and Macau control their own economies, are only really tied to China in terms of foreign policy and military/defense and therefore produce economic statistics through their own governments. To view Macau's economic data it can be accessed [here](https://www.gov.mo/en/about-macao-sar/statistics/). To view Hong Kong's economic data it can be accessed [here](https://www.hkeconomy.gov.hk/en/situation/index.htm). <!-- Should we include something about Taiwan in this section? -->
+
+
+<!--Explain the time periods that might be the least reliable, and maybe summarize some of the suggested methods for correcting things like GDP data. *Need help with this section- I have not found what time periods are the least reliable nor have I found methods?? See the comments and if you have data, please add-->
+Chinese statistics have been notoriously flawed for several reasons ranging from imprecise units of measurement to a lack of attention toward rural areas. In the late 1950s, statistics were seen as a way to show off accomplishment, rather than to communicate accurate and useful data. Throughout the 1950s there was a shortage of employees qualified to handle this data. As a consequence, workers were pressured to submit whatever report they had, regardless of accuracy. This led to a "virtual blackout" in the early 1960s. <!--This article also says that heavy industry statistics tend to be more accurate than those of light industry - wonder how this relates to the data?--> There is a very different cultural attitude toward statistical information than in the US. It is not only due to wanting to present itself well, but a common viewpoint in China is that "a slight discrepancy in figures does no harm".
+Generally speaking, economic statistics produced by the central government are consistently inflated in comparison to those produced locally/regionally. The central government has long evaluated local government officials on the basis of The National Bureau of Statistics of China's GDP. Because of this motivation to inflate national statistics, the socialist period (1949-1980) will include <!-- probably inflated data? --> the "reform and opening period" beginning in 1982 will include <!-- more accurate data reflecting changes in the more-free market ? -->
+In 2017 China established the Statistical Law Enforcement Supervision Bureau and the government issued Regulations for Implementation of the Law on Statistics, which were intended to enable punishment of statistics forgery. 
+Statistics produced by private organizations tend to have more accurate data than those produced by the central government.
+<!-- general source for this, Phil just said this in the lab 1 prompt -->
+
+Sources: 
+
+* [Economic History of China, 1949 to present](https://en.wikipedia.org/wiki/Economic_history_of_China_(1949%E2%80%93present))
+* [How Trustworty are Chinese Statistics?, JapanForward](https://japan-forward.com/how-trustworthy-are-chinese-statistics-china-inflates-gdp-figures-by-478-billion-in-2017/)
+* [Macau](https://en.wikipedia.org/wiki/Macau)
+* [China Quietly Releases 2017 Provincial GDP Figures, Forbes](https://www.forbes.com/sites/salvatorebabones/2018/02/12/china-quietly-releases-2017-provincial-gdp-figures/#799c69ed20dc)
+<!--Really interesting article from the CIA, goes into detail about Chinese history and statistics-->
+* [The Problem of Chinese Statistics, CIA](https://www.cia.gov/library/center-for-the-study-of-intelligence/kent-csi/vol16no4/html/v17i1a07p_0001.htm)
+<!--Here are a couple more articles on issues with Chinese statistics: https://www.economist.com/finance-and-economics/2018/07/07/chinas-statistics-are-bad-many-criticisms-of-them-are-worse and https://www.bloomberg.com/news/articles/2018-04-19/china-s-economic-stats-have-a-credibility-problem - I can send PDF copies if you run out of free articles to view on the sites-->
+
+```{r, include=FALSE}
+library(tidyverse)
+```
+```{r, echo=FALSE, include=FALSE}
+object1 <- read.csv(file="China_EO_49to17.csv", fileEncoding = "latin1")
+object2 <- as_tibble(object1)
+object2$Year <- as.integer(object2$Year)
+Year <- seq(from=1949,to=2017)
+object2$Year <- Year
+```
+## Part 2: Exploring and Visualizing the Data
+Using the dataset from [All China Data Center](https://chinadatacenter.net/Data/Services.aspx), we were able to identify patterns, trends, and other interesting things within the enterprise and output data.
+
+```{r, fig.align='center', echo=FALSE, warning=FALSE}
+East_West_Enterprise <- mutate(object2, 
+       Total_Enterprise_West = Heilongjiang_Enterprise + InnerMongolia_Enterprise + Ningxia_Enterprise + Gansu_Enterprise + Qinghai_Enterprise + Tibet_Enterprise + Xinjiang_Enterprise,
+       Total_Enterprise_East = Beijing_Enterprise + Tianjin_Enterprise + Hebei_Enterprise + Shanxi_Enterprise + Liaoning_Enterprise + Jilin_Enterprise + Shanghai_Enterprise + Jiangsu_Enterprise + Zhejiang_Enterprise + Anhui_Enterprise + Fujian_Enterprise + Jiangxi_Enterprise + Shandong_Enterprise + Henan_Enterprise + Hubei_Enterprise + Hunan_Enterprises + Guangdong_Enterprise + Guangxi_Enterprise + Hainan_Enterprise + Chongqing_Enterprise + Sichuan_Enterprise + Guizhou_Enterprise + Yunnan_Enterprise + Shaanxi_Enterprise
+       ) %>%
+        select(Total_Enterprise_West, Total_Enterprise_East, Year)
+
+## ggplot comparing the total enterprises for both western and eastern provinces
+East_West_Enterprise_plot <- ggplot (data=East_West_Enterprise, aes(x=Year))
+EW_colors <- c("East" = "blue", "West" = "red")
+East <- geom_line(aes(y= Total_Enterprise_East, color="East"), size = 1.5)
+West <- geom_line(aes(y= Total_Enterprise_West, color="West"), size = 1.5)
+East_West_Enterprise_plot+East+West+scale_color_manual(name="Region", values=EW_colors)+xlab("Year") +ylab("Total Enterprises") +ggtitle("Total Enterprises for East and West Provinces, China 1949-2017") +theme_bw() + theme(plot.title = element_text(hjust = 0.5)) + scale_x_continuous(breaks = c(1950, 1960, 1970, 1980, 1990, 2000, 2010, 2017))
+```
+
+The division of Eastern and Western is delineated based on the [15-inch Isohyet](https://www.forbes.com/sites/johnmauldin/2016/02/25/5-maps-that-explain-chinas-strategy/#3c257f4165b7). The Eastern provinces are much more densely populated than the Western. Looking at this graph, there are no recorded enterprises until around 1980. The Western provinces see little change in their enterprises totals but does undergo a large drop around 1998/1999. While the Eastern Provinces experience much more variability, both regions experiences similar periods of "highs" around 1995 and 2010, and similiar periods of "lows" in 1998/1999 and 2011.
+_____________________________________________________________________________________________________________________
+
+```{r, fig.align='center', echo = FALSE, warning=FALSE}
+municipalities <- select(object2, Year, Beijing_Enterprise, Tianjin_Enterprise, Shanghai_Enterprise, Chongqing_Enterprise) # Creates new variable with specific columns to examine
+MunicipalityComparison <- ggplot(data = municipalities, aes(x = Year)) # New ggplot
+Colors <- c("Beijing" = "blueviolet", "Tianjin" = "red", "Shanghai" = "cyan3", "Chongqing" = "blue") # Colors and labels for legend
+BJ <- geom_line(aes(y = Beijing_Enterprise, color = "Beijing"), size = 1.5) # Store each line as a variable
+TJ <- geom_line(aes(y = Tianjin_Enterprise, color = "Tianjin"), size = 1.5)
+SH <- geom_line(aes(y = Shanghai_Enterprise, color = "Shanghai"), size = 1.5)
+CQ <- geom_line(aes(y = Chongqing_Enterprise, color = "Chongqing"), size = 1.5)
+MunicipalityComparison + BJ + TJ + SH + CQ + scale_color_manual(name="Municipality", values = Colors) + ggtitle("Change in Enterprise Counts in Chinese Municipalities") + theme_bw() + ylab("Enterprise Count") + theme(plot.title = element_text(hjust = 0.5)) + scale_x_continuous(breaks = c(1950, 1960, 1970, 1980, 1990, 2000, 2010, 2017))
+```
+
+
+The graph is a plot of enterprise counts of the four non-province municipalities included in the data. A sharp decline in the mid-1950s is attributed to private farms being aggregated into larger organizations. On the plot, it appears as though the count decreased and enterprises had a mass closing, but it was the result of combining these individual entities. Influential economic reforms started in 1979, causing new growth. Patterns post-2000 are indicative of a growing GDP in the late 2000s followed by a decline in growth. Source: [China's Economic Rise by Wayne Morrison](https://fas.org/sgp/crs/row/RL33534.pdf)
+_____________________________________________________________________________________________________________________
+
+```{r, include=FALSE}
+#Selecting 30-year period
+filter(object2, Year == 1987 | Year == 1988 | Year == 1989 | Year == 1990 | Year == 1991 | Year == 1992 | Year == 1993 | Year == 1994 | Year == 1995 | Year == 1996 | Year == 1997 | Year == 1998 | Year == 1999 | Year == 2000 | Year == 2001 | Year == 2002 | Year == 2003 | Year == 2004 | Year == 2005 | Year == 2006 | Year == 2007 | Year == 2008 | Year == 2009 | Year == 2010 | Year == 2011 | Year == 2012 | Year == 2013 | Year == 2014 | Year == 2015 | Year == 2016 | Year == 2017)
+
+years30<- filter(object2, Year == 1987 | Year == 1988 | Year == 1989 | Year == 1990 | Year == 1991 | Year == 1992 | Year == 1993 | Year == 1994 | Year == 1995 | Year == 1996 | Year == 1997 | Year == 1998 | Year == 1999 | Year == 2000 | Year == 2001 | Year == 2002 | Year == 2003 | Year == 2004 | Year == 2005 | Year == 2006 | Year == 2007 | Year == 2008 | Year == 2009 | Year == 2010 | Year == 2011 | Year == 2012 | Year == 2013 | Year == 2014 | Year == 2015 | Year == 2016 | Year == 2017)
+```
+
+```{r, echo=TRUE, include=FALSE}
+#All output values
+select(years30,Year, Heilongjiang_Output, InnerMongolia_Output, Ningxia_Output, Gansu_Output, Qinghai_Output, Tibet_Output, Xinjiang_Output, Beijing_Output, Tianjin_Output, Hebei_Output, Shanxi_Output, Liaoning_Output, Jilin_Output, Shanghai_Output, Jiangsu_Output, Zhejiang_Output, Anhui_Output, Fujian_Output, Jiangxi_Output, Shandong_Output, Henan_Output, Hunan_Output, Hubei_Output, Guangdong_Output, Guangxi_Output, Hainan_Output, Chongqing_Output, Sichuan_Output, Guizhou_Output, Yunnan_Output, Shaanxi_Output)
+
+all<- select(years30,Year, Heilongjiang_Output, InnerMongolia_Output, Ningxia_Output, Gansu_Output, Qinghai_Output, Tibet_Output, Xinjiang_Output, Beijing_Output, Tianjin_Output, Hebei_Output, Shanxi_Output, Liaoning_Output, Jilin_Output, Shanghai_Output, Jiangsu_Output, Zhejiang_Output, Anhui_Output, Fujian_Output, Jiangxi_Output, Shandong_Output, Henan_Output, Hunan_Output, Hubei_Output, Guangdong_Output, Guangxi_Output, Hainan_Output, Chongqing_Output, Sichuan_Output, Guizhou_Output, Yunnan_Output, Shaanxi_Output)
+```
+
+```{r, echo=TRUE, include=FALSE}
+#Calculating Total Output for West Provinces
+mutate(all,
+       Total_Output_West = Heilongjiang_Output + InnerMongolia_Output + Ningxia_Output + Gansu_Output + Qinghai_Output + Tibet_Output + Xinjiang_Output)
+
+all2<-mutate(all,
+       Total_Output_West = Heilongjiang_Output + InnerMongolia_Output + Ningxia_Output + Gansu_Output + Qinghai_Output + Tibet_Output + Xinjiang_Output)
+```
+
+```{r, echo=TRUE, include=FALSE}
+#Calculating Total Output for East Provinces
+mutate(all2,
+       Total_Output_East = Beijing_Output + Tianjin_Output + Hebei_Output + Shanxi_Output + Liaoning_Output + Jilin_Output + Shanghai_Output + Jiangsu_Output + Zhejiang_Output + Anhui_Output + Fujian_Output + Jiangxi_Output + Shandong_Output + Henan_Output + Hubei_Output + Hunan_Output + Guangdong_Output + Guangxi_Output + Hainan_Output + Chongqing_Output + Sichuan_Output + Guizhou_Output + Yunnan_Output + Shaanxi_Output)
+
+final<- mutate(all2,
+       Total_Output_East = Beijing_Output + Tianjin_Output + Hebei_Output + Shanxi_Output + Liaoning_Output + Jilin_Output + Shanghai_Output + Jiangsu_Output + Zhejiang_Output + Anhui_Output + Fujian_Output + Jiangxi_Output + Shandong_Output + Henan_Output + Hubei_Output + Hunan_Output + Guangdong_Output + Guangxi_Output + Hainan_Output + Chongqing_Output + Sichuan_Output + Guizhou_Output + Yunnan_Output + Shaanxi_Output)
+```
+
+```{r, fig.align='center', echo=FALSE}
+#Final Graph
+#Plotting the 30-year span by the Total Output; distinguishing between East and West of the 15-inch Isohyet
+gross_output<- ggplot(data=final, aes(x= Year))
+NEW_colors<- c("West" = "coral1", "East" = "dodgerblue2")
+WEST_new<- geom_line(aes(y= Total_Output_West, color="West"), size= 1.5, na.rm = TRUE)
+EAST_new<- geom_line(aes(y= Total_Output_East, color="East"), size= 1.5, na.rm = TRUE)
+gross_output + WEST_new + EAST_new + scale_color_manual(name= "Key", values = NEW_colors) +xlab("Year")+ylab("Total Output (100 million RMB)") + ggtitle("Total Gross Output of the East and West Provinces of China") +theme_gray() + theme(axis.text.x= element_text(size = 8)) + theme(axis.text.y= element_text(size = 8)) + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title.x = element_text(size= 11, face = "bold")) + theme(axis.title.y =element_text(size= 11, face = "bold")) + theme(plot.title = element_text(face = "bold", size = 14)) + scale_x_continuous(breaks = c(1990, 1995, 2000, 2005, 2010, 2015)) + scale_y_continuous(breaks = c(0, 100000, 200000, 300000, 400000, 500000, 600000, 700000))
+```
+
+China is essentially broken up into two main regions: the East and West regions, which are divided by the [15-inch Isohyet](https://www.forbes.com/sites/johnmauldin/2016/02/25/5-maps-that-explain-chinas-strategy/#3c257f4165b7). This line represents the divide based on annual rainfall needed for an agricultural economy. The Western provinces receive less than 15-inches of rainfall a year, resulting in smaller economic outputs. On the contrary, the Eastern provinces and municipalities get the majority of the yearly rainfall, which contribute to higher economic outputs and greater population density. Thus, this graph aims to show the significant total outputs each region has over the course of a 30-year period.
+_____________________________________________________________________________________________________________________
+
+<!-- Macklan's Visualization -->
+
+``` {r, echo=FALSE}
+m_data = object2 %>% filter(Year > 1980) %>% select("Year", "Xinjiang_Output", "Yunnan_Output", "Fujian_Output", "Heilongjiang_Output", "Shaanxi_Output")
+```
+
+<!--In order to have all of the outputs for these provinces on one map, I had to alter the tibble. Rather than having every province in their own column, I decided to have one column for the province name and another for the corresponding province's output.-->
+
+``` {r, echo=FALSE}
+# Taking the columns for these 5 provinces and putting them into two columns, Province (takes the column name) and 
+# Output (takes the value within each province's column)
+m_data = gather(m_data, "Xinjiang_Output", "Yunnan_Output", "Fujian_Output", "Heilongjiang_Output", "Shaanxi_Output", key="Province", value="Output")
+
+```
+
+<!--In the csv file given each of the columns has _Output after each province's name, so I removed the _Output.-->
+```{r, echo=FALSE}
+# Removing the _Output from each value for Province
+m_data = m_data %>% mutate(Province = replace(Province, Province=="Xinjiang_Output", "Xinjiang (NW)")) %>% 
+  mutate(Province = replace(Province, Province=="Yunnan_Output", "Yunnan (SW)")) %>% 
+  mutate(Province = replace(Province, Province=="Fujian_Output", "Fujian (SE)")) %>% 
+  mutate(Province = replace(Province, Province=="Heilongjiang_Output", "Heilongjiang (NE)")) %>% 
+  mutate(Province = replace(Province, Province=="Shaanxi_Output", "Shaanxi"))
+```
+
+<!--After altering the data I noticed that there was a very large number of NA values for the outputs, so I removed those rows from the graph.-->
+```{r, echo=FALSE}
+# Removing all na values within Output
+m_data = m_data %>% filter(!is.na(Output))
+```
+
+
+```{r, fig.align='center', echo=FALSE}
+graph = ggplot(data = m_data, mapping = aes(x = Year, y = Output, color = Province)) +
+  geom_point() +
+  geom_line(stat="smooth", method="loess", formula = y~ x, se = FALSE) + 
+  ggtitle("How Geographic placement within China Affects Output from 1980-2017") + theme_bw() + theme(plot.title = element_text(hjust = 0.5)) + scale_x_continuous(breaks = c(1980, 1990, 2000, 2010, 2015))
+print(graph)
+```
+
+China has a very diverse economy, although it does not appear that way according to the media. China is commonly known for its manufacturing, but China still has a very large portion of its economy in agriculture. China's size and diverse landscapes plays a large part into why it is still has a large agricultural industry. In order to understand how different every province is within China, we decided to look at the four "corners" of China, as well as a province right in the center of the country. 
+
+Xinjiang (North West), Yunnan (South West), Fujian (South East), Heilongjiang (North East) and Shaanxi (Center) are use in this sample tp analyze outputs per year. After looking at the outputs for these five provinces, we noticed that the outputs were very low and similar until 1980, where there started to be a growing seperation of the outputs. 
+_____________________________________________________________________________________________________________________
+
+```{r, echo=FALSE, include=FALSE}
+Municipalities=read.csv("Municipalities.csv")
+```
+
+```{r, echo=FALSE, include=FALSE}
+#Renaming output columns to look better on visual
+names(Municipalities) <- c("Year", "Beijing_Enterprises", "Beijing", "Tianjin_Enterprises", "Tianjin", "Shanghai_Enterprises", "Shanghai", "Chongqing_Enterprises", "Chongqing")
+Municipalities
+```
+
+```{r, echo=FALSE}
+#Creating master ggplot object
+
+ggplotMaster <- ggplot(data=Municipalities, aes(x=Year))
+LegendColors <- c("Beijing" = "coral1", "Chongqing" = "chartreuse2", "Shanghai" ="cyan3", "Tianjin" = "blueviolet")
+```
+
+```{r, fig.align='center', echo=FALSE, warning=FALSE}
+#adding geom_line objects for each Municipalities
+BeijingOutput <- geom_line(aes(y=Beijing, color="Beijing"), size = 1.1, alpha = 0.5)
+TianjinOutput <- geom_line(aes(y=Tianjin, color="Tianjin"), size = 1.1, alpha = 0.5) 
+ShanghaiOutput <- geom_line(aes(y=Shanghai, color="Shanghai"), size = 1.1, alpha = 0.5) 
+ChongqingOutput <- geom_line(aes(y=Chongqing, color="Chongqing"), size = 1.1, alpha = 0.5) 
+ggplotMaster + BeijingOutput + TianjinOutput + ShanghaiOutput + ChongqingOutput + scale_color_manual(name="Municipality", values = LegendColors) + ggtitle("Change in Municipality Output 1949-2017") + theme(plot.title = element_text(hjust = 0.5)) + ylab("Output(100 million RMB)") + scale_x_continuous(breaks = c(1950, 1960, 1970, 1980, 1990, 2000, 2010, 2017))
+
+```
+
+The graph "Change in Municpality Output 1949-2017" shows the increase in output from each municipality of China between 1949 and 2017. When comparing to the graph "of change in municipality enterprises"Change in Enterprise Counts for Municipalities" above, we can see a reverse trend between the amount of enterprises and output. Enterprises decrease from 1949 to 2017 while output increases. This is due to enterprises absorbing other enterprises to increase output, the creation of monopolies, or from a increase in activity from social, political, and economic variables.
+_____________________________________________________________________________________________________________________
+
+## Part 3: Modifying the Data
+<!--Function for output ratios, plot a few interesting comparisons-->
+<!-- Plot and summarize relationship between output and number of enterprises for specific provinces -->
+<!-- Find other data, visualize it, use it to modify existing data and visualize result -->
+<!-- "Hidden" variables, visualize, maybe use statistical tests -->
+<!-- Aggregate data by region -->
+
+Below are some interesting comparisons between providences from the North and South, and providences from the East and West. We used a function to automate output ratios between the providences.
+```{r, fig.align='center', echo=FALSE}
+# Function to automate producing output ratios
+# object1 = the data
+# province1 / province2
+ratio <- function(object1, province1, province2) {
+  object1 = as_tibble(object1) %>% filter(Year >= 2000) %>% arrange(desc(Year))
+  object1 = object1[c("Year", province1, province2)] %>% mutate(Output_Ratio = .[[2]]/ .[[3]])
+  object1 = object1 %>% filter(!is.na(Output_Ratio))
+  return (object1)
+}
+
+north_south = ratio(as_tibble(object1), "Heilongjiang_Output", "Hainan_Output")
+
+north_south_plot = ggplot(data = north_south, mapping = aes(x = Year, y = Output_Ratio, color = "Heilongjiang/ Hainan")) + 
+  geom_point() + 
+  geom_smooth(method = 'loess', formula = y ~ x, se = FALSE, color = "gray") + 
+  ggtitle("North / South Output Ratio") + 
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  ylab("Output Ratio")
+
+east_west = ratio(object1, "Xinjiang_Output", "Zhejiang_Output")
+
+east_west_plot = ggplot(data = east_west, mapping = aes(x = Year, y = Output_Ratio, color = "Xinjiang/ Zheijiang")) + 
+  geom_point() + 
+  geom_smooth(method = 'loess', formula = y ~ x, se = FALSE, color = "gray") + 
+  ggtitle("East / West Output Ratio") + 
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  ylab("Output Ratio")
+
+print(north_south_plot)
+print(east_west_plot)
+```
+_____________________________________________________________________________________________________________________
+
+After calculating the national output total for each year, we calculated the output percentages for selected provinces in different regions. Xinjiang,a northwestern province, is sparsely populated at around 30 people per square mile. We compared it to the dense (over 300 times that of Xinjiang!) and urban Shanghai. The plot showed Shanghai consistently having a greater share of the output total than Xinjiang, with an extreme spike around 2010. Xinjiang is a predominantly agricultural region, with local governments encouraging its industry. It has its own significant economy, but is dwarfed by the scale of massive Shanghai.
+```{r, fig.align='center', echo = FALSE, warning=FALSE, message=FALSE}
+#Part 3 second part plots. Share of national output total for selected provinces in different areas of the country. Added explanations.
+outputs <-read_csv(file="Output_Only.csv")
+part3 <- as_tibble(outputs)
+selection <- c("Shanghai" = "cyan3", "Xinjiang" = "red", "Beijing" = "darkviolet", "Chongqing" = "darkorange")
+east_west <- ggplot(data = part3, aes(x = Year))
+shanghai <- geom_line(aes(y = Shanghai_Output_Percentage, color = "Shanghai"), size = 1.5)
+xinjiang <- geom_line(aes(y = Xinjiang_Output_Percentage, color = "Xinjiang"), size = 1.5)
+east_west <- east_west + shanghai + xinjiang + scale_color_manual(name = "Province/Municipalilty", values = selection) + ggtitle("Eastern vs Western Province") + ylab("Output Percentage") + theme(plot.title = element_text(hjust = 0.5)) + scale_x_continuous(breaks = c(1950, 1960, 1970, 1980, 1990, 2000, 2010, 2017))
+east_west
+```
+_____________________________________________________________________________________________________________________
+
+Tianjin is located on the Northeast coast of China, just to the southeast of Beijing. Over the past decade, this province has been one of China's [fastest growing economies](https://www.economist.com/china/2018/08/02/how-tianjin-once-chinas-fastest-growing-region-became-its-slowest). Recently, its economic output has begun to drastically decrease. Over the past few years, the province has been shifting away from their base of being one of China's hubs for both the mechanic and textile industry. This shift has caused Tianjin to increase its reliance on a [service based economy](http://china-trade-research.hktdc.com/business-news/article/Facts-and-Figures/Tianjin-Market-Profile/ff/en/1/1X000000/1X06BVTM.htm). In relation to gross output per enterprise, the province only began to pick up in the late-1990s and skyrocketed into the 2000s. Surprisingly, Tianjin has a quite high output per enterprise. This could be due to the increased reliance on the service economy. 
+
+```{r, echo=FALSE, include=FALSE}
+#Tianjin 
+Tianjin<- select(object2, Year, Tianjin_Output, Tianjin_Enterprise)
+mutate(Tianjin,
+       Ratio = Tianjin_Output/Tianjin_Enterprise)
+Tianjin_Ratio<- mutate(Tianjin,
+       Ratio = Tianjin_Output/Tianjin_Enterprise)
+```
+
+```{r, fig.align='center', echo=FALSE}
+#Tianjin plot
+TR<- ggplot(data = Tianjin_Ratio, aes(x = Year))
+ratio<- geom_line(aes(y = Ratio), size = 1.2, na.rm = TRUE, color= "chartreuse3")
+TR + ratio + xlab("Year") + ylab("Output/Enterprise") + ggtitle("Tianjin Province: Output per Enterprise per Year") + theme(axis.text.x= element_text(size = 8)) + theme(axis.text.y= element_text(size = 8)) + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title.y =element_text(size= 11, face = "bold")) + theme(axis.title.x =element_text(size= 11, face = "bold") )+ theme(plot.title = element_text(face = "bold", size = 14)) + scale_y_continuous(breaks = c(0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5))+ scale_x_continuous(breaks = c(1950, 1960, 1970, 1980, 1990, 2000, 2010, 2017))
+```
+
+Heilongjiang is China's northernmost province, sharing a border with Russia. Beginning in the late 1800s, Russia had strong influence over the region even though China continually tried to strengthen the province through agricultural production. By the Second World War, Russia and Japan had been fighting for control over the region, and after the Chinese Civil War it became the first province completely controlled by the [Communists](http://www.chinafolio.com/provinces/heilongjiang/). It wasn't until 2005 that Heilongjiang was governed under China officially. Its economy is largely based off of agriculture, timber, and [livestock](https://www.ipim.gov.mo/en/services/liaison-offices-in-mainland-china/liaison-office-of-shenyang/brief-introduction-of-economic-profile/brief-introduction-of-heilongjiang-province-economic-profile/). As you can see from the graph below, Heilongjiang has a low output per enterprise. From the data, it looks like the province has decreased the number of enterprised but has continued to strengthen their yearly outputs.
+
+```{r, echo=FALSE, include=FALSE}
+#Heilongjiang
+Heilongjiang<- select(object2, Year, Heilongjiang_Output, Heilongjiang_Enterprise)
+HR1<- mutate(Heilongjiang,
+       Ratio = Heilongjiang_Output/Heilongjiang_Enterprise)
+Heilongjiang_Ratio<- filter(HR1, Year != 2012)
+```
+
+```{r, fig.align='center', echo=FALSE}
+#Heilongjiang plot
+HR<- ggplot(data = Heilongjiang_Ratio, aes(x = Year))
+ratio_HR<- geom_line(aes(y = Ratio), size = 1.2, na.rm = TRUE, color= "chartreuse3")
+HR + ratio_HR + xlab("Year") + ylab("Output/Enterprise") + ggtitle("Heilongjiang Province: Output per Enterprise per Year") + theme(axis.text.x= element_text(size = 8)) + theme(axis.text.y= element_text(size = 8)) + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title.y =element_text(size= 11, face = "bold")) + theme(axis.title.x =element_text(size= 11, face = "bold") )+ theme(plot.title = element_text(face = "bold", size = 14)) + scale_y_continuous(breaks = c(0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5))+ scale_x_continuous(breaks = c(1950, 1960, 1970, 1980, 1990, 2000, 2010, 2017))
+```
+
+As a major metropolitan municipality, Shanghai is home to just over [24 million people](http://worldpopulationreview.com/world-cities/shanghai-population/). Since the Opium War in the mid-1800s, it has been a key trading port and one of China's strongest economic centers. Due to its past successes as an industrial and commercial city, Shanghai's current diverse economy has contributed to its national and [international status](https://www.globalurban.org/GUD%20Shanghai%20MES%20Report.pdf). Out of the 166 different types of industry within China, 157 of them are within [Shanghai](http://www.china-window.com/china_economy/china_economy_guide/china-economy-shanghai.shtml). Shanghai's diverse economy supports large economic outputs each year, and builds upon this with a fairly steady number of enterprises within the municipality.         
+
+```{r, echo=FALSE, include=FALSE}
+#Shanghai
+Shanghai<- select(object2, Year, Shanghai_Output, Shanghai_Enterprise)
+mutate(Shanghai,
+       Ratio = Shanghai_Output/Shanghai_Enterprise)
+Shanghai_Ratio<- mutate(Shanghai,
+       Ratio = Shanghai_Output/Shanghai_Enterprise)
+```
+
+```{r, fig.align='center', echo=FALSE}
+#Shanghai plot
+SR<- ggplot(data = Shanghai_Ratio, aes(x = Year))
+ratio_SR<- geom_line(aes(y = Ratio), size = 1.2, na.rm = TRUE, color= "chartreuse3")
+SR + ratio_SR + xlab("Year") + ylab("Output/Enterprise") + ggtitle("Shanghai Municipality: Output per Enterprise per Year") + theme(axis.text.x= element_text(size = 8)) + theme(axis.text.y= element_text(size = 8)) + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title.y =element_text(size= 11, face = "bold")) + theme(axis.title.x =element_text(size= 11, face = "bold") )+ theme(plot.title = element_text(face = "bold", size = 14)) + scale_y_continuous(breaks = c(0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5))+ scale_x_continuous(breaks = c(1950, 1960, 1970, 1980, 1990, 2000, 2010, 2017))
+```
+
+Guizhou, located in the southwest, is one of China's least developed provinces. It's main sources of economy are agriculture, mining, and the production of [power, gas, and water](http://china-trade-research.hktdc.com/business-news/article/Facts-and-Figures/Guizhou-Market-Profile/ff/en/1/1X000000/1X06BUYK.htm). The graph clearly shows that this province has been struggling to gain a substantial amount of output, and the enterprises that reside there struggle to get much economic traction. Although, there might be some change on the horizon for Guizhou. In 2017 and 2018, the tech industry began staking land claims across the province. Companies like Apple, Qualcomm, and Alibaba aim to setup data centers alongside [cloud computing](http://www.xinhuanet.com/english/2018-05/29/c_137215216.htm). This could lead to big jumps in economic output for Guizhou in the near future. 
+
+```{r, echo=FALSE, include=FALSE}
+#Guizhou
+Guizhou<- select(object2, Year, Guizhou_Output, Guizhou_Enterprise)
+mutate(Guizhou,
+       Ratio = Guizhou_Output/Guizhou_Enterprise)
+Guizhou_Ratio<- mutate(Guizhou,
+       Ratio = Guizhou_Output/Guizhou_Enterprise)
+```
+
+```{r, fig.align='center', echo=FALSE}
+#Guizhou plot
+GR<- ggplot(data = Guizhou_Ratio, aes(x = Year))
+ratio_GR<- geom_line(aes(y = Ratio), size = 1.2, na.rm = TRUE, color= "chartreuse3")
+GR + ratio_GR + xlab("Year") + ylab("Output/Enterprise") + ggtitle("Guizhou Province: Output per Enterprise per Year") + theme(axis.text.x= element_text(size = 8)) + theme(axis.text.y= element_text(size = 8)) + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title.y =element_text(size= 11, face = "bold")) + theme(axis.title.x =element_text(size= 11, face = "bold") )+ theme(plot.title = element_text(face = "bold", size = 14)) + scale_y_continuous(breaks = c(0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5))+ scale_x_continuous(breaks = c(1950, 1960, 1970, 1980, 1990, 2000, 2010, 2017))
+```
+_____________________________________________________________________________________________________________________
+
+```{r, include=FALSE}
+library(tidyverse)
+```
+
+```{r, fig.align='center', echo=FALSE, warning=FALSE, message=FALSE}
+## Step 4/ Part 3  - Daniella : Downloaded pop data and plotted
+
+Province_Pop <- read.csv(file="province_population.csv", stringsAsFactors = FALSE)
+Province_Pop_v1 <- as_tibble(Province_Pop)
+Province_Pop_v1$Year <- as.integer(Province_Pop_v1$Year)
+Year <- seq(from=1949,to=2017)
+Province_Pop_v1$Year <- Year
+Province_Pop_v1$Yunnan_Total_Perm_Pop_10000persons <- as.numeric(Province_Pop_v1$Yunnan_Total_Perm_Pop_10000persons)
+
+
+
+Province_Pop_Plot <- ggplot(data=Province_Pop_v1, aes(x=Year, group=1))
+pop_colors <- c("Yunnan"="blue", "Xinjiang"="red", "Hunan"="green", "Heilongjiang"="coral", "Guangdong"="orange", "Beijing"="purple")
+Yunnan_pop <- geom_line(aes(y=Yunnan_Total_Perm_Pop_10000persons, color="Yunnan"), size=1.5)
+Xinjiang_pop <- geom_line(aes(y=Xinjiang_Total_Perm_Pop_10000persons, color="Xinjiang"), size=1.5)
+Hunan_pop <- geom_line(aes(y=Hunan_Total_Perm_Pop_10000persons, color="Hunan"), size=1.5)
+Heilongjiang_pop <- geom_line(aes(y=Heilongjiang_Total_Perm_Pop_10000persons, color="Heilongjiang"), size=1.5)
+Guangdong_pop <- geom_line(aes(y=Guangdong_Total_Perm_Pop_10000_persons, color="Guangdong"), size=1.5)
+Beijing_pop <- geom_line(aes(y=Beijing_Total_Perm_Pop_10000_.persons, color="Beijing"), size=1.5)
+Province_Pop_Plot+Yunnan_pop+Xinjiang_pop+Hunan_pop+Heilongjiang_pop+Guangdong_pop+Beijing_pop+scale_color_manual(name ="Key", values = pop_colors) +xlab("Year") +ylab("Total Permanent Population by Province (10,000 persons)") +ggtitle("Selected Province Population 1949-2017") +theme_gray() + theme(plot.title = element_text(hjust = 0.5)) + scale_x_continuous(breaks = c(1950, 1960, 1970, 1980, 1990, 2000, 2010, 2017))
+```
+
+```{r, warning=FALSE, message=FALSE, include=FALSE}
+## Created a plot of those provinces with their outputs 
+object1 <= read.csv(file="China_EO_49to17.csv", fileEncoding = "latin1")
+object2 <= as_tibble(object1)
+object2$Year <- as.integer(object2$Year)
+Year <= seq(from=1949,to=2017)
+object2$Year <= Year
+```
+
+```{r, fig.align='center', warning=FALSE, message=FALSE, include=FALSE}
+
+Output_Pop_Comparison <- ggplot(data=object2, aes(x=Year, group=1))
+pop_colors <- c("Yunnan"="blue", "Xinjiang"="red", "Hunan"="green", "Heilongjiang"="coral", "Guangdong"="orange", "Beijing"="purple")
+Yunnan_output <- geom_line(aes(y=Yunnan_Output, color="Yunnan"), size=1.5)
+Xinjiang_output <- geom_line(aes(y=Xinjiang_Output, color="Xinjiang"), size=1.5)
+Hunan_output <- geom_line(aes(y=Hunan_Output, color="Hunan"), size=1.5, na.rm=TRUE)
+Heilongjiang_output <- geom_line(aes(y=Heilongjiang_Output, color="Heilongjiang"), size=1.5)
+Guangdong_output <- geom_line(aes(y=Guangdong_Output, color="Guangdong"), size=1.5)
+Beijing_output <- geom_line(aes(y=Beijing_Output, color="Beijing"), size=1.5)
+Output_Pop_Comparison+Yunnan_output+Xinjiang_output+Hunan_output+Heilongjiang_output+Guangdong_output+Beijing_output+scale_color_manual(name ="Key", values = pop_colors) +xlab("Year") +ylab("Total Output (100 Million RMB)") +ggtitle("Selected Province Output 1949-2017") +theme_gray() + scale_y_continuous(limit = c(0, 50000), breaks = seq(0, 50000, 10000)) + scale_x_continuous(limits = c(1980, 2020), breaks = seq(1980, 2020, 5))
+```
+
+Guangdong's output is on a completely different scale than those of the other provinces. Although these provinces start out (in regards to what is being recorded) within approximately 1,000-2,000 of eachother, in the late 1990's Guangdong rapidly increases far above the others to just under 100,000 reported in 2017. Also of note, there were not any reported outputs for Heilongjiang in 2012 and in 2015-2017. Contrastingly, the other 5 provinces appear to have increased their outputs at a similar rate, until Hunan increased rapidly around 2010. 
+We chose to compare these provinces' outputs to their total permenant population (10,000 persons) to observe if their increases (or decreases) occured in similar time frames, and therefore population might be related to output. This population data was also derived from All China Data. Although there is great variety by region (Guangdon is more densely populated than Xinjiang), the overall increase in population is similiarly steady, but looks nothing like that of the outputs. Of note however, is Guangdong's large increase in output occured around 1990, which right before 1990 Guangdong experiences a reported decrease in population. Additionally, Guangdong had a very rapid increase in output around 2003 and also experienced a large increase in population around that same time
+_____________________________________________________________________________________________________________________
+
+Below is a correlation test to see if there is any relationship between the increased output and decreased # of enterprises of municipalities.  Beijing and Shanghai are used as sample municipalities.
+
+[The Pearson Correlation](https://support.minitab.com/en-us/minitab-express/1/help-and-how-to/modeling-statistics/regression/supporting-topics/basics/a-comparison-of-the-pearson-and-spearman-correlation-methods/) method was used in this test to evaluate the linear relationship between the two variables. This test shows whether or not one change in a variable is associated with a proportional change in the other variable.
+
+For the purpose of the correlation test, year 2017 was removed from Beijing's data due to N/A values being present, as well as 1949-1951 in Shanghai's data due to N/A values being present.
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+
+Beijing_Output_Cor <- c(1.47,3.07,5.99,7.19,10.28,11.86,13.19,18.19,19.93,42.8,65.37,86.85,51.23,39.09,40.59,45.94,55.03,66.52,60.16,63.44,90.43,120.14,146.99,155.31,166.75,181.7,197.63,207.81,145.41,165.07,182.75,205.82,210.56,220.55,238.93,270.29,315.68,336.55,388.42,495.65,602.66,625.9,730.21,860.42,1168.35,1553.12,1450.27,1522.29,1716.2,1816.48,1999.97,2565.38,2908.82,3173.48,3810.36,4880.89,6946.07,8210,9648.38,10413.09,11039.13,13699.84,14513.63,15596.21,17370.88,18452.9,17449.63,18087.27)
+
+Beijing_Enterprise_Cor <- c(21055,23461,29839,34386,38632,39595,32036,3574,4234,2084,2890,2238,2207,2049,2039,1715,1790,1842,1841,1792,1740,1819,1931,2059,2167,2255,3739,3877,4036,2911,3240,3571,3622,3709,3880,4174,4777,4911,5070,5196,5336,5409,5409,5308,7530,9312,9636,15002,17739,4497,5225,4572,4356,4551,4019,6871,6300,6400,6397,7205,6890,6884,3746,3692,3641,3686,3548,3340)
+
+cor.test(Beijing_Output_Cor, Beijing_Enterprise_Cor, method = "pearson")
+
+Shanghai_Output_Cor <- c(66.6,91.5,96.37,91.42,113.92,118.82,176.44,254.68,298.97,187.43,151.98,168.91,196.95,230.77,259.59,226.88,251.87,284.42,312.18,336.52,355.39,383.33,398.4,420.37,423.45,458.4,493.41,534.92,574.16,592.02,604.43,627.92,692.5,808.5,890.6,990.12,1180.73,1373.48,1477.04,1747.59,2153.61,2880.62,3664.65,3880.68,4247.12,4602.19,5191.43,5452.91,6204.52,7003.9,7740.56,10342.82,12885.01,15767.51,18573.13,22259.94,25120.92,24091.26,30114.41,32445.15,31548.41,32088.88,32665.19,31049.57,31136.03,36094.36)
+
+Shanghai_Enterprise_Cor <- c(25878,29873,28860,23713,18724,16316,14240,12205,13488,11447,8809,8522,8343,8189,8267,8582,8532,8635,9834,9307,9327,9069,8867,8743,8798,8572,6975,5866,6233,6753,7181,7442,7295,8422,8762,9328,9668,10282,10109,10203,10144,10254,11496,15396,15007,13861,9320,9205,8574,9762,10057,11098,15766,14809,14404,15099,18792,17906,16684,9962,9772,9796,9469,8994,8351,8122)
+
+cor.test(Shanghai_Output_Cor, Shanghai_Enterprise_Cor, method = "pearson")
+
+```
+
+According to the results, there is a negative correlation of -0.1394395 in Beijing's test, and a positive correlation of 0.03240188 in Shanghai's test. The conclusion can be made that municipalities increase and decrease of output and enterprises are independent of one another. The negative correlation in Beijing's test means as one variable increases, the other decreases. In this case, as Beijing's # of enterprises decreases as its output increases. Though, this does not directly mean that Beijing's decrease in enterprises is the **cause** of Beijing's increase in output.
+
+Shanghai's positive correlation means that the two variables move in tandem with one another. As one increases, the other increases. Though, being such a low value, the strength of the positive correlation is low.
+```{r, echo = FALSE, include=FALSE, message=FALSE, warning=FALSE}
+# Part 3, sixth part, aggregated data by region from original csv. Added the new population data by region from another csv. NA values screw up the data in the region_data when I knit the document, but it is calculated correctly when I run the chunk in RStudio. Probably need to change NA values to 0?
+pop_csv <- read_csv(file = "AllProvincePop.csv")
+pop_csv[is.na(pop_csv)] <- 0
+pop_byregion <- as_tibble(pop_csv)
+region_data <- transmute(object2, year = Year, # Selects only the new calculated columns
+n_ent = Beijing_Enterprise + Tianjin_Enterprise + Hebei_Enterprise + Shanxi_Enterprise + InnerMongolia_Enterprise, # North region enterprise
+n_output = Beijing_Output + Tianjin_Output + Hebei_Output + Shanxi_Output, # North region output
+ne_ent = Liaoning_Enterprise + Jilin_Enterprise + Heilongjiang_Enterprise, # Northeast region enterprise
+ne_output = Liaoning_Output + Jilin_Output + Heilongjiang_Output, # Northeast region output
+e_ent = Shanghai_Enterprise + Jiangsu_Enterprise + Zhejiang_Enterprise + Anhui_Enterprise + Fujian_Enterprise + Jiangxi_Enterprise + Shandong_Enterprise, # East region enterprise
+e_output = Shanghai_Output + Jiangsu_Output + Zhejiang_Output + Anhui_Output + Fujian_Output + Jiangxi_Output + Shandong_Output, # East region output
+scentral_ent = Henan_Enterprise + Hubei_Enterprise + Hunan_Enterprises + Guangdong_Enterprise + Guangxi_Enterprise + Hainan_Enterprise, # South central region enterprise
+scentral_output = Henan_Output + Hubei_Output + Hunan_Output + Guangdong_Output + Guangxi_Output + Hainan_Output, # South central region output
+sw_ent = Chongqing_Enterprise + Sichuan_Enterprise + Guizhou_Enterprise + Yunnan_Enterprise + Tibet_Enterprise, # Southwest regionenterprise
+sw_output = Chongqing_Output + Sichuan_Output + Guizhou_Output + Yunnan_Output + Tibet_Output, # Southwest region output
+nw_ent = Shaanxi_Enterprise + Gansu_Enterprise + Qinghai_Enterprise + Ningxia_Enterprise + Xinjiang_Enterprise, # Northwest region enterprise
+nw_output = Shaanxi_Output + Gansu_Output + Qinghai_Output + Ningxia_Output + Xinjiang_Output) # Northwest region output
+pop_data <- transmute(pop_byregion, n_pop = North_Total_Pop, ne_pop = Northeast_Total_Pop, e_pop = East_Total_Pop, scentral_pop = SouthCentral_Total_Pop, sw_pop = Southwest_Total_Pop, nw_pop = Northwest_Total_Pop) # Selects only aggregate columns
+region_data <- cbind(region_data, pop_data) # Combines columns
+region_data # Displays new selection of data
+```
+
+_____________________________________________________________________________________________________________________
+
+#Below is the aggregated data of enterprises, output, and population by region.
+```{r, echo = FALSE}
+DT::datatable(region_data, options = list(
+  pageLength=20, scrollX = '400x'), filter = 'top')
+```
